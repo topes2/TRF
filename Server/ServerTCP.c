@@ -8,17 +8,22 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <time.h>
+
 #define PORT 5555
 #define BUFFER_SIZE 1024
-#define MAX_CLIENTS 2
+#define MAX_CLIENTS 1000
+#define LATE_TIME 1
 
 int main() {
-    int serverSocket, clientSockets[MAX_CLIENTS], maxSocket, activity, newSocket, connections = 1;
+    unsigned int timer = 0;
+    time_t start_time = time(NULL), current_timer;
+    int serverSocket, clientSockets[MAX_CLIENTS], maxSocket, activity, newSocket;
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_len;
     char buffer[BUFFER_SIZE];
     fd_set readfds;
-    char message[1050] = "Client ", number[3]; //Para o chat
+    char message[1050]; //Para o chat
     
     //Colocar valores 0 no array
     for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -97,38 +102,35 @@ int main() {
         }    
 
         //chat
-        for(int i = 0; i < MAX_CLIENTS; i++){
+        for(int i = 0; i < MAX_CLIENTS; i++) {
             memset(buffer, 0, BUFFER_SIZE);
-            if(FD_ISSET(clientSockets[i], &readfds)){
+            if(FD_ISSET(clientSockets[i], &readfds)) {
                 ssize_t len = read(clientSockets[i], buffer, BUFFER_SIZE);
 
-                if(len <= 0){
+                if(len <= 0) {
                     printf("Client %d left.\n", i + 1);
                     close(clientSockets[i]);
                     clientSockets[i] = 0;
-
-                    sprintf(number, "%d", i + 1);
-                    strcat(message, number); // Concatenando number à message corretamente
-                    strcat(message, ": "); // Adicionando um separador
-                    strcat(message, "left."); // Concatenando buffer à message corretamente
                 } else {
-                    printf("Client %d: %s\n", i + 1, buffer);
+                    printf("Client %d: %s", i + 1, buffer);
 
                     // Vamos juntar as strings para mostrar quem disse o que
-                    sprintf(number, "%d", i + 1);
-                    strcat(message, number); // Concatenando number à message corretamente
-                    strcat(message, ": "); // Adicionando um separador
-                    strcat(message, buffer); // Concatenando buffer à message corretamente
-                }
+                    sprintf(message, "Client %d: %s", i + 1, buffer); // Use sprintf para formatar a mensagem corretamente
 
-
-
-                for(int j = 0; j < MAX_CLIENTS; j++){
-                    if(j != i && clientSockets[i] > 0){
-                        write(clientSockets[j], message, strlen(message));
+                    // Enviar a mensagem para todos os outros clientes
+                    for(int j = 0; j < MAX_CLIENTS; j++) {
+                        if(j != i && clientSockets[j] > 0) {
+                            write(clientSockets[j], message, strlen(message));
+                        }
                     }
-                }     
+                }
             }
+        }
+        //Atualização do timer
+        current_timer = time(NULL);
+        timer = (unsigned int) (current_timer - start_time);
+        if(timer >= LATE_TIME * 60){
+            printf("%d minutes have passed!\n", LATE_TIME);
         }
     }
 
