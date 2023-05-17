@@ -23,14 +23,14 @@ int main() {
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
-        printf("Socket creation failed...");
+        printf("Socket creation failed...\n");
         exit(-1);
     }
 
     server = gethostbyname("localhost");
 
     if (server == NULL) {
-        printf("Server connection error...");
+        printf("Server connection error...\n");
         exit(-1);
     }
 

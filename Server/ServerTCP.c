@@ -33,7 +33,7 @@ int main() {
     //Criar a socket TCP
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket < 0) {
-        perror("Error creating socket");
+        perror("Error creating socket\n");
         exit(EXIT_FAILURE);
     }
 
@@ -45,13 +45,13 @@ int main() {
 
     //Bind socket and addr
     if (bind(serverSocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        perror("Error binding");
+        perror("Error binding\n");
         exit(EXIT_FAILURE);
     }
 
     //Listen 
     if (listen(serverSocket, MAX_CLIENTS) < 0) {
-        perror("Error listening");
+        perror("Error listening\n");
         exit(EXIT_FAILURE);
     }
 
