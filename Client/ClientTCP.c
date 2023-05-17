@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <sys/select.h>
 
+#include "network.h"
+
 #define PORT 5555
 #define BUFFER_SIZE 1024
 
@@ -15,34 +17,19 @@ int main() {
     int sockfd;
     struct sockaddr_in serv_addr;
     struct hostent *server;
+    char buffer[BUFFER_SIZE];
 
+    //talvez retirar isto -> testar !!!!!!!!!!!!!!!!!!!!
     setbuf(stdin, NULL);
     setbuf(stdout, NULL);
 
-    char buffer[BUFFER_SIZE];
+    sockfd = Socket();
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) {
-        printf("Socket creation failed...\n");
-        exit(-1);
-    }
+    *server = ServerbyName("localhost");
 
-    server = gethostbyname("localhost");
+    serv_addr = ServerSetup(serv_addr, PORT, *server);
 
-    if (server == NULL) {
-        printf("Server connection error...\n");
-        exit(-1);
-    }
-
-    bzero((char *)&serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
-    memcpy(&serv_addr.sin_addr.s_addr, server->h_addr_list[0], server->h_length);
-
-    if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        printf("Connection error...");
-        exit(-1);
-    }
+    Connect(sockfd, serv_addr);
 
     fd_set readfds;
     int max_fd;
@@ -70,7 +57,7 @@ int main() {
             }
 
             write(sockfd, buffer, strlen(buffer));
-        }
+        }  
 
         if (FD_ISSET(sockfd, &readfds)) {
             bzero(buffer, BUFFER_SIZE);
