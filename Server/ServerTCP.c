@@ -7,17 +7,28 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <pthread.h>
 
-#include <time.h>
+#include "backup/backup.h"
+#include "network.h"
 
 #define PORT 5555
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 1000
-#define LATE_TIME 1
 
 int main() {
-    unsigned int timer = 0;
-    time_t start_time = time(NULL), current_timer;
+    pthread_t time;
+    //argumentos da thread
+    volatile int flag = 0; //flag que determina o fim do programa
+    backupArgs args;
+    args.flag = &flag;
+
+    //criacao da thread
+    if (pthread_create(&time, NULL, Backup, &args)) {
+        fprintf(stderr, "Erro ao criar thread principal\n");
+        return 1;
+    }
+
     int serverSocket, clientSockets[MAX_CLIENTS], maxSocket, activity, newSocket;
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_len;
@@ -25,39 +36,26 @@ int main() {
     fd_set readfds;
     char message[1050]; //Para o chat
     
+    //Configuração do servidor
     //Colocar valores 0 no array
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        clientSockets[i] = 0;
-    }
+    NetworkS(clientSockets, MAX_CLIENTS);
 
     //Criar a socket TCP
-    serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverSocket < 0) {
-        perror("Error creating socket");
-        exit(EXIT_FAILURE);
-    }
+    serverSocket = Socket();
 
     //Configurar o servidor addr
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_port = htons(PORT);
+    server_addr = ServerConfig(server_addr, PORT);
 
     //Bind socket and addr
-    if (bind(serverSocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        perror("Error binding");
-        exit(EXIT_FAILURE);
-    }
+    Bind(serverSocket, server_addr);
 
     //Listen 
-    if (listen(serverSocket, MAX_CLIENTS) < 0) {
-        perror("Error listening");
-        exit(EXIT_FAILURE);
-    }
+    Listen(serverSocket, MAX_CLIENTS);
 
     printf("Waiting for clients...\n");
     addr_len = sizeof(client_addr);
 
+    
     //Ciclo para as conexões
     while(1){
         FD_ZERO(&readfds);
@@ -125,12 +123,6 @@ int main() {
                     }
                 }
             }
-        }
-        //Atualização do timer
-        current_timer = time(NULL);
-        timer = (unsigned int) (current_timer - start_time);
-        if(timer >= LATE_TIME * 60){
-            printf("%d minutes have passed!\n", LATE_TIME);
         }
     }
 
