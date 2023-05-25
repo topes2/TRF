@@ -16,18 +16,15 @@ int Socket(){
         printf("Socket creation failed...\n");
         exit(-1);
     }
-
     return sockfd;
 }
 
 struct hostent* ServerbyName(char name[]){
     struct hostent *server = gethostbyname(name);
-
     if (server == NULL) {
         printf("Server connection error...\n");
         exit(-1);
     }
-
     return server;
 }
 
@@ -36,7 +33,6 @@ struct sockaddr_in ServerSetup(struct sockaddr_in serv_addr, int port, struct ho
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(port);
   memcpy(&serv_addr.sin_addr.s_addr, server->h_addr_list[0], server->h_length);
-
   return serv_addr;
 }
 

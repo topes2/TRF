@@ -7,19 +7,28 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <pthread.h>
 
-#include <time.h>
-
+#include "backup/backup.h"
 #include "network.h"
 
 #define PORT 5555
 #define BUFFER_SIZE 1024
-#define MAX_CLIENTS 10
-#define LATE_TIME 1
+#define MAX_CLIENTS 1000
 
 int main() {
-    unsigned int timer = 0;
-    time_t start_time = time(NULL), current_timer;
+    pthread_t time;
+    //argumentos da thread
+    volatile int flag = 0; //flag que determina o fim do programa
+    backupArgs args;
+    args.flag = &flag;
+
+    //criacao da thread
+    if (pthread_create(&time, NULL, Backup, &args)) {
+        fprintf(stderr, "Erro ao criar thread principal\n");
+        return 1;
+    }
+
     int serverSocket, clientSockets[MAX_CLIENTS], maxSocket, activity, newSocket;
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_len;
@@ -114,12 +123,6 @@ int main() {
                     }
                 }
             }
-        }
-        //Atualização do timer
-        current_timer = time(NULL);
-        timer = (unsigned int) (current_timer - start_time);
-        if(timer >= LATE_TIME * 60){
-            printf("%d minutes have passed!\n", LATE_TIME);
         }
     }
 
