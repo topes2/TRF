@@ -30,11 +30,6 @@ int main() {
     fd_set readfds;
     int max_fd;
 
-    //Pedir login
-    if(!loggedin){
-        printf("Insira o comando IAM username WITHPASS yourpassword\n");
-    }
-
     while (1) {
         //select
         FD_ZERO(&readfds);
@@ -55,14 +50,27 @@ int main() {
             bzero(buffer, BUFFER_SIZE);
             fgets(buffer, BUFFER_SIZE, stdin);
 
-            if (strncmp("quit", buffer, 4) == 0) {
+            //comando de saida
+            if (strcmp("exit\n", buffer) == 0) {
                 printf("Leaving...\n");
                 break;
             }
 
-            write(sockfd, buffer, strlen(buffer));
+            if(!loggedin){
+                char* userPass = formatting(buffer);
+                if(userPass == NULL){
+                    printf("Invalid login command\n");
+                } else{
+                    write(sockfd, userPass, strlen(userPass));
+                }
+                loggedin = 1;
+            } else {
+                write(sockfd, buffer, strlen(buffer));
+            }
         }   
 
+
+        //se o servidor desconectar
         if (FD_ISSET(sockfd, &readfds)) {
             bzero(buffer, BUFFER_SIZE);
             ssize_t len = read(sockfd, buffer, sizeof(buffer));

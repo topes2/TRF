@@ -14,7 +14,7 @@
 
 #define PORT 5555
 #define BUFFER_SIZE 1024
-#define MAX_CLIENTS 1000
+#define MAX_CLIENTS 100
 
 int main() {
     pthread_t time;
@@ -88,7 +88,7 @@ int main() {
             }
 
             printf("New client connected, IP: %s, Port: %d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-            write(newSocket, "Connection sucesseful!\n", strlen("Connection sucesseful!\n"));
+            write(newSocket, "Insira o comando IAM username WITHPASS yourpassword\n", strlen("Insira o comando IAM username WITHPASS yourpassword\n"));
 
             for (int i = 0; i < MAX_CLIENTS; i++) {
                 if (clientSockets[i] == 0) {
@@ -110,7 +110,7 @@ int main() {
                     close(clientSockets[i]);
                     clientSockets[i] = 0;
                 } else {
-                    printf("Client %d: %s", i + 1, buffer);
+                    printf("Client %d: %s\n", i + 1, buffer);
 
                     // Vamos juntar as strings para mostrar quem disse o que
                     sprintf(message, "Client %d: %s", i + 1, buffer); // Use sprintf para formatar a mensagem corretamente
