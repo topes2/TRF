@@ -19,15 +19,11 @@ int main() {
     struct hostent *server;
     char buffer[BUFFER_SIZE];
 
-    //talvez retirar isto -> testar !!!!!!!!!!!!!!!!!!!!
-    setbuf(stdin, NULL);
-    setbuf(stdout, NULL);
-
     sockfd = Socket();
 
-    *server = ServerbyName("localhost");
+    server = ServerbyName("localhost");
 
-    serv_addr = ServerSetup(serv_addr, PORT, *server);
+    serv_addr = ServerSetup(serv_addr, PORT, server);
 
     Connect(sockfd, serv_addr);
 
@@ -42,7 +38,7 @@ int main() {
 
         int activity = select(max_fd + 1, &readfds, NULL, NULL, NULL);
         if (activity < 0) {
-            perror("Error in select");
+            perror("Error in select\n");
             exit(EXIT_FAILURE);
         }
 
@@ -66,7 +62,7 @@ int main() {
                 printf("Server disconnected...\n");
                 break;
             }
-            printf("%s\n", buffer);
+            printf("%s", buffer);
         }
     }
 

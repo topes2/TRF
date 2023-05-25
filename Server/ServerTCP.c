@@ -27,6 +27,7 @@ int main() {
     fd_set readfds;
     char message[1050]; //Para o chat
     
+    //Configuração do servidor
     //Colocar valores 0 no array
     NetworkS(clientSockets, MAX_CLIENTS);
 
@@ -45,6 +46,7 @@ int main() {
     printf("Waiting for clients...\n");
     addr_len = sizeof(client_addr);
 
+    
     //Ciclo para as conexões
     while(1){
         FD_ZERO(&readfds);

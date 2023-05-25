@@ -1,12 +1,12 @@
-#include <arpa/inet.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/select.h>
 #include <sys/socket.h>
-#include <sys/types.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <netdb.h>
 #include <unistd.h>
+#include <sys/select.h>
 
 #include "network.h"
 
@@ -31,19 +31,18 @@ struct hostent* ServerbyName(char name[]){
     return server;
 }
 
-struct sockaddr_in ServerSetup(struct sockaddr_in serv_addr, int port, struct hostent *server){
-    bzero((char *)&serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(port);
-    memcpy(&serv_addr.sin_addr.s_addr, server->h_addr_list[0], server->h_length);
+struct sockaddr_in ServerSetup(struct sockaddr_in serv_addr, int port, struct hostent *server) {
+  memset(&serv_addr, 0, sizeof(serv_addr));
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_port = htons(port);
+  memcpy(&serv_addr.sin_addr.s_addr, server->h_addr_list[0], server->h_length);
 
-
-    return serv_addr;
+  return serv_addr;
 }
 
 void Connect(int sockfd, struct sockaddr_in serv_addr){
     if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        printf("Connection error...");
+        printf("Connection error...\n");
         exit(-1);
     }
 }

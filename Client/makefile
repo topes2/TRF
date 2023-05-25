@@ -1,7 +1,11 @@
-cli: bin/main.o
+cli: bin/main.o bin/network.o
 	gcc -o $@ $^
-bin/main.o: ClientTCP.c | bin
+
+bin/main.o: ClientTCP.c | network.h bin
 	gcc -c -o $@ $^
+bin/network.o: network.c | network.h bin
+	gcc -c -o $@ $^
+
 bin:
 	mkdir bin
 clean:
