@@ -19,7 +19,7 @@ int main() {
     struct sockaddr_in serv_addr;
     struct hostent *server;
     char buffer[BUFFER_SIZE];
-    int loggedin = 0; //0 nao fez log in, 1 fez
+    int loggedin = 0, firstmsg = 1; //0 nao fez log in, 1 fez
 
     sockfd = Socket();
     server = ServerbyName("localhost");
@@ -60,11 +60,11 @@ int main() {
                 char* userPass = formatting(buffer);
                 if(userPass == NULL){
                     printf("Invalid login command\n");
-                } else{
+                } else {
                     write(sockfd, userPass, strlen(userPass));
+                    loggedin = 1;
                 }
-                loggedin = 1;
-            } else {
+            } else if (loggedin){
                 write(sockfd, buffer, strlen(buffer));
             }
         }   
@@ -78,7 +78,11 @@ int main() {
                 printf("Server disconnected...\n");
                 break;
             }
-            printf("%s", buffer);
+
+            if(loggedin || firstmsg){
+                printf("%s", buffer);
+                firstmsg = 0;
+            }
         }
     }
 

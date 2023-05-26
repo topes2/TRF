@@ -8,27 +8,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <gdbm.h>
 
+#include "database/db.h"
 #include "backup/backup.h"
 #include "network.h"
-
-#define PORT 5555
-#define BUFFER_SIZE 1024
-#define MAX_CLIENTS 100
+#include "defines.h"
 
 int main() {
-    pthread_t time;
-    //argumentos da thread
-    volatile int flag = 0; //flag que determina o fim do programa
-    backupArgs args;
-    args.flag = &flag;
-
-    //criacao da thread
-    if (pthread_create(&time, NULL, Backup, &args)) {
-        fprintf(stderr, "Erro ao criar thread principal\n");
-        return 1;
-    }
-
     int serverSocket, clientSockets[MAX_CLIENTS], maxSocket, activity, newSocket;
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_len;
@@ -55,6 +42,25 @@ int main() {
     printf("Waiting for clients...\n");
     addr_len = sizeof(client_addr);
 
+    //threads
+    pthread_t time;
+    //argumentos da thread
+    volatile int flag = 0; //flag que determina o fim do programa
+    backupArgs args;
+    args.flag = &flag;
+
+    //Data Bases
+    GDBM_FILE dbLogin;
+
+    //iniciar a base de dados
+    dbLogin = start_bd("Login");
+
+
+    //criacao da thread
+    if (pthread_create(&time, NULL, Backup, &args)) {
+        fprintf(stderr, "Erro ao criar thread principal\n");
+        return 1;
+    }
     
     //Ciclo para as conexões
     while(1){
@@ -106,7 +112,7 @@ int main() {
                 ssize_t len = read(clientSockets[i], buffer, BUFFER_SIZE);
 
                 if(len <= 0) {
-                    printf("Client %d left.\n", i + 1);
+                    printf("Client %d left.\n", i + 1); //trocar para o user !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     close(clientSockets[i]);
                     clientSockets[i] = 0;
                 } else {
@@ -133,6 +139,8 @@ int main() {
         }
     }
     
+    //fechar tudo
+    gdbm_close(dbLogin);
     close(serverSocket);
     return 0;
 }

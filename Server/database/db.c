@@ -4,11 +4,9 @@
 #include <sys/stat.h>
 #include <gdbm.h>
 
-#include "BaseDados.h"
-
+#include "db.h"
 
 GDBM_FILE start_bd(char string[]){// recebe o nome da base de dados a abrir
-
     char* newString = malloc(strlen(string) + 5);
     strcat(newString, string);
     strcat(newString,".gdbm"); //adicionar o tipo de ficheiro ao nome
@@ -31,7 +29,8 @@ GDBM_FILE start_bd(char string[]){// recebe o nome da base de dados a abrir
     return db; //returnar a base de dados criada
 }
 
-void regs(char string[],char string1[],GDBM_FILE db){ //string == username string1 == password bd == base de dados
+
+void regs(char string[], char string1[], GDBM_FILE db){ //string == username string1 == password bd == base de dados
     datum key, content;
     //Organizar a chave e o conteudo
     key.dptr = string; //ID (index da DB)

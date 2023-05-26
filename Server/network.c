@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "defines.h"
 #include "network.h"
 
 //Colocar valores 0 no array

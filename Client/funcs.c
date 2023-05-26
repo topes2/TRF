@@ -12,8 +12,9 @@ char* formatting(char* string){
         char* result = malloc(strlen(username) + strlen(password) + 2); // + 2 pelos : e \0 
         if (result == NULL) {
             return NULL;
-        }
-        sprintf(result, "%s:%s", username, password);
+        }   
+        //(!+{';!$^) - codigo para o servidor perceber
+        sprintf(result, "(!+{';!$^)%s:%s", username, password);
         return result;
     }
 
