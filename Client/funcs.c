@@ -14,7 +14,7 @@ char* formatting(char* string){
             return NULL;
         }   
         //(!+{';!$^) - codigo para o servidor perceber
-        sprintf(result, "(!+{';!$^)%s:%s", username, password);
+        sprintf(result, "(!+{';!$^)%s:%s", username, password); //formatar
         return result;
     }
 

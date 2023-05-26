@@ -8,13 +8,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "defines.h"
 #include "network.h"
 
 //Colocar valores 0 no array
-void NetworkS(int clientSockets[], int maxClients){
+void NetworkS(client *clients, int maxClients){
     for (int i = 0; i < maxClients; i++) {
-        clientSockets[i] = 0;
+        clients[i].socket = 0;
     }
 }
 

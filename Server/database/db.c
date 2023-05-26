@@ -30,7 +30,7 @@ GDBM_FILE start_bd(char string[]){// recebe o nome da base de dados a abrir
 }
 
 
-void regs(char string[], char string1[], GDBM_FILE db){ //string == username string1 == password bd == base de dados
+int regs(char string[], char string1[], GDBM_FILE db){ //string == username string1 == password bd == base de dados
     datum key, content;
     //Organizar a chave e o conteudo
     key.dptr = string; //ID (index da DB)
@@ -42,7 +42,10 @@ void regs(char string[], char string1[], GDBM_FILE db){ //string == username str
     int result = gdbm_store(db, key, content, GDBM_INSERT);
     if (result != 0) {
         fprintf(stderr, "Couldn't insert item into database: %s\n", gdbm_strerror(gdbm_errno));
+        return 1;
     }
+
+    return 0;
 }
 
 
@@ -73,17 +76,18 @@ char* login(char string[], char string1[], GDBM_FILE db){
     if(gdbm_exists(db, key)){
         content = gdbm_fetch(db, key);
 
-        printf("Pass certa: %s\nPass obtida: %s\n", content.dptr, string1);
-
         if (!strcmp(content.dptr, passkey.dptr)){
             return key.dptr;
         } else {
             printf("Wrong PassWord \n");
-            return NULL;
+            return "-1";
         }
     } else {
         fprintf(stderr, "Cant find username: %s\n", gdbm_strerror(gdbm_errno));
+        return "0";
     }
 
     return NULL;
 }
+
+

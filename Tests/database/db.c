@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 #include <gdbm.h>
 
-#include "BaseDados.h"
+#include "db.h"
 
 
 GDBM_FILE start_bd(char string[]){// recebe o nome da base de dados a abrir
@@ -89,6 +89,21 @@ char* login(char string[], char string1[], GDBM_FILE db){
     return NULL;
 }
 
-int find_key(char key[],GDBM_FILE bd){
-    
+
+char find_position(char key[],GDBM_FILE db){ // recebe uma chave retorna o content
+    datum k1 = gdbm_firstkey(db);
+    int counter = 0;
+    while(k1.dptr && strcmp(k1.dptr,key)){
+        datum nextkey;
+        nextkey = gdbm_nextkey (db, k1);
+        k1 = nextkey;
+        if(gdbm_errno == "GDBM_ITEM_NOT_FOUND")
+        return "-1";
+        counter++;
+    }
+    datum content = gdbm_fetch(db,k1);
+
+    char n[10];
+    sprintf(n,"%d",counter);
+    return n;
 }
