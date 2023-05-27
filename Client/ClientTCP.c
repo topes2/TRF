@@ -11,6 +11,7 @@
 #include "network.h"
 #include "funcs.h"
 
+
 #define PORT 5555
 #define BUFFER_SIZE 1024
 
@@ -62,18 +63,55 @@ int main() {
                     printf("Invalid login command\n");
                 } else {
                     write(sockfd, userPass, strlen(userPass));
-                    loggedin = 1;
+                    memset(buffer, 0, strlen(buffer));
+                    read(sockfd, buffer, BUFFER_SIZE); //leitura do resultado do login(server)
+                    
+                    if(!strcmp("1", buffer)){ //Password incorreta
+                        printf("Wrong password, please try again\n");
+                    } else if (!strcmp("2", buffer)){ // registo
+                        printf("Acount not found, would you like to register? (y/n)\n");
+                        memset(buffer, 0, strlen(buffer));
+                        fgets(buffer, BUFFER_SIZE, stdin);
+
+                        if(buffer[0] == 'y'){
+                            write(sockfd, "21", strlen("21"));
+                            
+                            memset(buffer, 0, strlen(buffer));
+                            read(sockfd, buffer, BUFFER_SIZE);
+
+                            printf("%s", buffer);
+
+                        } else if(buffer[0] == 'n'){
+                            printf("Disconecting...\n");
+                            break;
+                        } else {
+                            printf("Incorret option, please type (y/n)\n");
+                        }
+
+                    } else { //loggin feito com sucesso
+                        printf("Loggin in\n");
+
+                        memset(buffer, 0, strlen(buffer));
+                        read(sockfd, buffer, BUFFER_SIZE);
+
+                        while (!strncmp("Welcome ", buffer, 8)){
+                            printf("Please wait");
+                            
+                        }
+
+                        printf("%s", buffer);
+                        loggedin = 1;
+                    }
                 }
             } else if (loggedin){
-                write(sockfd, buffer, strlen(buffer));
+                printf("A escrever no server:\n%s\n", buffer);
             }
         }   
-
 
         //se o servidor desconectar
         if (FD_ISSET(sockfd, &readfds)) {
             bzero(buffer, BUFFER_SIZE);
-            ssize_t len = read(sockfd, buffer, sizeof(buffer));
+            ssize_t len = read(sockfd, buffer, BUFFER_SIZE);
             if (len <= 0) {
                 printf("Server disconnected...\n");
                 break;

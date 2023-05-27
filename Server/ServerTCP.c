@@ -1,19 +1,5 @@
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <gdbm.h>
-
-#include "database/db.h"
-#include "backup/backup.h"
-#include "network.h"
 #include "defines.h"
+#include "q&a/questan.h"
 
 int main() {
     int serverSocket, maxSocket, activity, newSocket;
@@ -97,7 +83,7 @@ int main() {
             }
 
             printf("New client connected, IP: %s, Port: %d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-            write(newSocket, "Welcome\nInsira o comando IAM username WITHPASS yourpassword\n", strlen("Welcome\nInsira o comando IAM username WITHPASS yourpassword\n"));
+            write(newSocket, "Welcome\nEnter the command: IAM username WITHPASS yourpassword\n", strlen("Welcome\nEnter the command: IAM username WITHPASS yourpassword\n"));
 
             for (int i = 0; i < MAX_CLIENTS; i++) {
                 if (clients[i].socket == 0) {
@@ -135,47 +121,33 @@ int main() {
                             char *loginResult = login(userName, password, dbLogin);
 
                             if(!strcmp("-1", loginResult)){ //password incorreta    
-                                write(clients[i].socket, "Incorrect password, please try again\n", strlen("Incorrect password, please try again\n"));
-                                write(clients[i].socket, "1", strlen("1")); // enviamos 0 para a variavel logged in no client 
+                                write(clients[i].socket, "1", strlen("1"));
 
                             } else if(!strcmp("0", loginResult)){ //nao foi encontrado registo
-                                write(clients[i].socket, "Your acount was not found in our servers, would you like to register?(y/n)\n", strlen("Your acount was not found in our servers, would you like to register?(y/n)\n"));
                                 write(clients[i].socket, "2", strlen("2"));
 
                                 memset(buffer, 0, strlen(buffer));
                                 read(clients[i].socket, buffer, BUFFER_SIZE);
 
-                                if(!strcmp(buffer, "y")){
+                                if(!strcmp("21", buffer)){ //respondeu y para o registo
                                     if(!regs(userName, password, dbLogin)){
-                                        memset(buffer, 0, BUFFER_SIZE);
-                                        sprintf(buffer, "Register completed! Welcome %s!", userName);
-                                        write(clients[i].socket, buffer, strlen(buffer));
-                                        strcpy(clients[i].userName, userName);
-                                    } else{
-                                        write(clients[i].socket, "Error in register please try again.\n", strlen("Error in register please try again.\n"));
+                                        write(clients[i].socket, "Register completed! Please log in again\n", strlen("Register completed! Please log in again\n"));
+                                    } else {
+                                        write(clients[i].socket, "Error please try again\n", strlen("Error please try again\n"));
                                     }
-                                } 
+                                }
 
-                            } else { //login bem sucedido
+                            } else { //login bem sucedido             
                                 memset(buffer, 0, BUFFER_SIZE);
-                                sprintf(buffer, "Welcome %s!", userName);
+                                sprintf(buffer, "Welcome %s!", clients[i].userName);
                                 write(clients[i].socket, buffer, strlen(buffer));
-                                strcpy(clients[i].userName, userName);
+                                strcpy(clients[i].userName, userName);   
                             }
                             
                         } else {
                             write(clients[i].socket, "Login error, please try again.\n", strlen("Login error, please try again.\n"));
                         }
-                    }
-
-                    printf("Client %d: %s\n", i + 1, buffer);//print da mensagem do cliente
-
-                    // Enviar a mensagem para todos os outros clientes
-                    for(int j = 0; j < MAX_CLIENTS; j++) {
-                        if(j != i && clients[j].socket > 0) {
-                            write(clients[j].socket, buffer, strlen(buffer));
-                        }
-                    }
+                    } //perguntas e respostas
                 }
             }
         }

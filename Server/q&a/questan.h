@@ -1,12 +1,6 @@
-#define MAX_ANSWER 100
-#define MAX_LEGTH 1024
+#include "../defines.h"
 
-typedef struct {
-    char pergunta[MAX_LEGTH];
-    char user[12];
-} Answer;
-
-typedef struct{
-    Answer answers[MAX_ANSWER];
-    char question[MAX_LEGTH];
-}Question;
+void add_question(char question[],GDBM_FILE db);
+void add_answer(char id[], char answer[],char userid[], GDBM_FILE db);
+void remove_answer(char id[],char userid[],GDBM_FILE db);
+void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb);
