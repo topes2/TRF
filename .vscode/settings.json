@@ -1,8 +1,6 @@
 {
     "files.associations": {
-        "stdio.h": "c",
-        "inet.h": "c",
-        "string.h": "c",
-        "defines.h": "c"
+        "network.h": "c",
+        "socket.h": "c"
     }
 }

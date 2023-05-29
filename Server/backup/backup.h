@@ -2,7 +2,7 @@
 #define BACKUP_H
 
 typedef struct {
-    volatile int* flag;
+    volatile int* flag; //flag para o fim do programa
 } backupArgs;
 
 void* Backup(void* arg);

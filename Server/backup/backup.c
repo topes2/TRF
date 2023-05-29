@@ -5,9 +5,9 @@
 
 #include "backup.h"
 
-//Funcao que verifica o tempo e cria um backup apos um certo tempo
+//Function for the backup
 void* Backup(void* arg){
-    //argumentos
+    //args
     backupArgs* arguments = (backupArgs*) arg;
     volatile int* flag = arguments->flag;
     
@@ -18,7 +18,7 @@ void* Backup(void* arg){
         sleep(300);
         printf("Starting backup\n");
 
-        //Criacao do backup
+        //Backup creation
 
     }
 
