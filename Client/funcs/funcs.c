@@ -25,6 +25,35 @@ char* formatingLogin(char *buffer){
     return NULL;
 }
 
+char* formatingQ_A(char *buffer){
+
+    if(!strncmp("ASK ", buffer, strlen("ASK "))){ //new questions
+        char *res = malloc(strlen(ASK_CODE) + strlen(buffer + strlen("ASK ")));
+        sprintf(res, "%s:%s", ASK_CODE, buffer + strlen("ASK "));
+
+        return res;
+
+    } else if(!strncmp("ANSWER ", buffer, strlen("ANSWER "))){
+        int Qnum;
+        char *ans;
+        if(sscanf(buffer, "ANSWER %d %s", &Qnum, ans) != 2){
+            printf("Invalid command\n");
+            return NULL; //comando invalido
+        }
+        
+        char *res = malloc(strlen(ANSWER_CODE) + strlen(ans) + 2 + sizeof(Qnum));
+        sprintf(res, "%s:%d:%s", ANSWER_CODE, Qnum, ans);
+        
+        return res;
+
+    } else if(!strncmp("LISTQUESTIONS", buffer, strlen("LISTQUESTIONS"))){
+        return LISTFILES_CODE;
+
+    }
+
+    return NULL;
+}
+
 int login(int sockfd, char *buffer, char *loginCommand){
     write(sockfd, loginCommand, strlen(loginCommand));
 

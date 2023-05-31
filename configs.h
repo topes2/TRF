@@ -5,21 +5,21 @@
 
 
 //server
-#define PORT 5556
+#define PORT 5567
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 100
 
 //Q&A
 #define MAX_ANSWER 100
 #define MAX_LEGTH 1024
-#define ASK "&@%$@"
-#define ANSWER "@$^@^"
-#define LISTQUESTIONS "$^&%@"
+#define ASK_CODE "&@%$@"
+#define ANSWER_CODE "@$^@^"
+#define LISTQUESTIONS_CODE "$^&%@"
 
 //files
-#define PUTFILES "#!%#!"
-#define LISTFILES "^%!&#"
-#define GETFILES "$*&!@"
+#define PUTFILES_CODE "#!%#!"
+#define LISTFILES_CODE "^%!&#"
+#define GETFILES_CODE "$*&!@"
 
 //users
 #define MAX_USERNAME_LENGTH 10

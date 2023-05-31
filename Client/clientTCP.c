@@ -43,7 +43,19 @@ int main(){
                 loggedin = login(sockfd, buffer, loginCommand);
             }
         } else { //its already logged in
-            
+            //Q&A
+            char *res = formatingQ_A(buffer);
+            if (res != NULL){
+                write(sockfd, res, strlen(res));
+                if(!strncmp(res, ASK_CODE, strlen(ASK_CODE))){
+                    memset(buffer, 0, BUFFER_SIZE);
+                    read(sockfd, buffer, BUFFER_SIZE);
+
+                    printf("%s", buffer);
+                }
+            } else {
+                printf("Invalid Command\n");
+            }
         } 
     }
 

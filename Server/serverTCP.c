@@ -15,6 +15,9 @@
 #include "../configs.h"
 #include "databases/db.h"
 #include "funcs/funcs.h"
+#include "qa/questan.h"
+#include "files/files.h"
+
 
 int main(){
     int serverSocket, maxSocket, activity;
@@ -39,10 +42,14 @@ int main(){
     //Data bases
     GDBM_FILE dbLogin;
     GDBM_FILE dbAttendance;
+    GDBM_FILE dbQ;
+    GDBM_FILE dbA;
 
     //start the dbs
     dbLogin = start_bd("Login");
     dbAttendance = start_bd("Attendance");
+    dbQ = start_bd("Q");
+    dbA = start_bd("A");
 
     //start clock
     time_t start = time(NULL);
@@ -87,8 +94,28 @@ int main(){
                         write(clients[i].socket, "1", strlen("1"));
                     }
                     
-                //} else if(){ //Q&A  -------------------------------------------------------------------------------------------------------------------------------------
-                    
+                } else { //Q&A  -------------------------------------------------------------------------------------------------------------------------------------
+                    if(!strncmp(ASK_CODE, buffer, strlen(ASK_CODE))){
+                        char *token = strtok(buffer,":");
+                        token = strtok(NULL,":");    
+                        if(!search_question(token, dbQ)){
+                            add_question(token,dbQ);
+                            return_question(clients[i].socket, dbQ, token);
+                        } else {
+                            return_question(clients[i].socket, dbQ, token);
+                        }
+                        
+                    } else if(!strncmp(ANSWER_CODE, buffer, strlen(ANSWER_CODE))){
+                        char *token = strtok(buffer,":");
+                        token = strtok(NULL,":");
+                        add_answer(token, clients[i].userName, dbA);                        
+                        
+                        
+                    } else if(!strncmp(LISTFILES_CODE, buffer, strlen(LISTFILES_CODE))){
+
+                        
+                        
+                    }
                 } //else {} files ---------------------------------------------------------------------------------------------------------------------------------------
             }
         }
