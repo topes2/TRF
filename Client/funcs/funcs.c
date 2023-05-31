@@ -77,6 +77,23 @@ int login(int sockfd, char *buffer, char *loginCommand){
     return 1;
 }
 
+void QandA(int sockfd, char *buffer, char *res){
+    write(sockfd, res, strlen(res));
+    if(!strncmp(res, ASK_CODE, strlen(ASK_CODE)) || !strncmp(res, ANSWER_CODE, strlen(ANSWER_CODE))){
+        memset(buffer, 0, BUFFER_SIZE);
+        read(sockfd, buffer, BUFFER_SIZE);
+
+        printf("%s", buffer);
+    } else if(!strcmp(res, LISTFILES_CODE)){
+        do{
+            memset(buffer, 0, BUFFER_SIZE);
+            read(sockfd, buffer, BUFFER_SIZE);
+            printf("%s", buffer);
+
+        } while(strcmp(buffer, ENDQUESTIONS));
+    }
+}
+
 //other
 void getInput(char *buffer){
     memset(buffer, 0, strlen(buffer));
@@ -88,3 +105,4 @@ void getInput(char *buffer){
         *fgetsEnd = '\0';
     }
 }   
+

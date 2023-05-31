@@ -5,7 +5,7 @@
 
 
 //server
-#define PORT 5555
+#define PORT 5556
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 100
 
@@ -15,6 +15,7 @@
 #define ASK_CODE "&@%$@"
 #define ANSWER_CODE "@$^@^"
 #define LISTQUESTIONS_CODE "$^&%@"
+#define ENDQUESTIONS "ENDQUESTIONS"
 
 //files
 #define PUTFILES_CODE "#!%#!"
@@ -26,6 +27,7 @@
 #define MAX_PASSWORD_LENGTH 51
 #define LOGIN_CODE "(!+{';!$^)"
 #define STOP_LOOP "#$@#$@"
+
 #define WELCOME_MSG "Welcome\nEnter the command: IAM username WITHPASS yourpassword\n"
 #define SERVER_BY_NAME "localhost"
 

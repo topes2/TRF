@@ -75,7 +75,7 @@ void return_question(int socket, GDBM_FILE db, char question[]){
     while(q.dptr){
         qc = gdbm_fetch(db,q);
         if(!strcmp(qc.dptr,question)){
-            char *res = malloc(strlen("QUESTION " + strlen(q.dptr) + strlen(": ") + strlen(qc.dptr) + strlen("\n")));
+            char *res = malloc(strlen("QUESTION ") + strlen(q.dptr) + strlen(": ") + strlen(qc.dptr) + strlen("\n") + 1);
             sprintf(res, "QUESTION %s: %s\n", q.dptr, qc.dptr);
             write(socket, res, strlen(res));
         }
@@ -84,20 +84,26 @@ void return_question(int socket, GDBM_FILE db, char question[]){
     }
 }
 
+/*
 void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){ //list all the question and anwsers to the user that requested them
-    int counter = 0;
     char buffer[BUFFER_SIZE],*token;
+    int counter = 0;
     datum keyq = gdbm_firstkey(qdb); // question key in the data base, wich is its id
     datum content = gdbm_fetch(qdb,keyq), contenta, nextkey; 
-
-    memset(buffer, 0, BUFFER_SIZE);
+    
+    //memset(buffer, 0, BUFFER_SIZE);
     sprintf(buffer, "QUESTION %s: %s", keyq.dptr,content.dptr); // make the string thats supposed to be sent to the user
     write(socket,buffer,strlen(buffer)+1); //send the string to the user
+
+    printf("While start\n");
     while(keyq.dptr){
+        printf("While1\n");
+        sprintf(buffer, "(%s) %s", keyq.dptr,content.dptr); // make the string thats supposed to be sent to the user        
         datum keya = gdbm_firstkey(adb); //anwser key which has the id of answer and the id of the user that gave it
-        counter = 0;
         while(keya.dptr){
+            printf("while2\n");
             token = strtok(keya.dptr,"-");
+            printf("%s %s \n",keyq.dptr,token);
             if(!strcmp(keyq.dptr,token)){
                 token = strtok(NULL, "-");
                 contenta = gdbm_fetch(adb,keya);
@@ -106,12 +112,78 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){ //list all the que
                 counter++;
                 nextkey = gdbm_nextkey(adb,keya);
                 keya = nextkey;
+                printf("existe 1 \n");
             }
-            if(counter == 0)
+
+            if(counter == 0){
                 write(socket,"NO ANWSERS YET.", strlen("NO ANWSERS YET."));
+            }
             nextkey = gdbm_nextkey(qdb,keyq);
             keyq = nextkey;
         }
+        counter = 0;
     }
-    write(socket,STOP_LOOP,strlen(STOP_LOOP));
+
+    printf("While end\n");
+    write(socket,ENDQUESTIONS,strlen(ENDQUESTIONS));
+}
+*/
+
+void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
+    datum ka,kac;
+    datum kq,kqc;
+    datum tk;
+    int counter = 0;
+    kq = gdbm_firstkey(qdb);
+    while(kq.dptr){
+        printf("while 1 \n");
+        kqc = gdbm_fetch(qdb, kq); 
+        if(!kqc.dptr){
+            printf("break\n");
+            break;
+        }
+        
+        char *question = malloc(strlen(kq.dptr) + strlen(kqc.dptr) + 5);
+        sprintf(question, "(%s) %s", kq.dptr, kqc.dptr);
+        printf("Question: %s\n", question);
+        //write(socket, question, strlen(question));
+
+        ka = gdbm_firstkey(adb);
+        while(ka.dptr){
+            char *token = strtok(ka.dptr,"-");
+            printf("token = %s key = %s \n",token,kq.dptr);
+            if(!strcmp(token, kq.dptr)){
+                counter++;
+                token = strtok(NULL,"-");
+                kac = gdbm_fetch(adb, ka); 
+                if(!kac.dptr){
+                    printf("breakA\n");
+                    break;
+                }                
+                //printf("Token: %s\ncontent: %s\n", token, kac.dptr);
+                if(!token){
+                    break;
+                }
+                char *ans = malloc(strlen(token) + kac.dsize + 5);
+                sprintf(ans, "(%s) %s\n", token, kac.dptr);
+                //printf("ans: %s\n", ans);
+                //write(socket, ans, strlen(ans));                 
+            }
+
+            if(counter == 0){
+                write(socket,"NOT ANSWERED\n",strlen("NOT ANSWERED\n"));
+            }
+
+            tk = gdbm_nextkey(adb,ka);
+            ka = tk;    
+                  
+            
+        }
+        tk = gdbm_nextkey(qdb,kq);
+        kq = tk;        
+        token = strtok(kq.dptr,"-");
+    }
+
+    printf("%s\n", ENDQUESTIONS);
+    //write(socket, ENDQUESTIONS, strlen(ENDQUESTIONS));
 }

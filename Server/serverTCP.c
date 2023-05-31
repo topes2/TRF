@@ -108,12 +108,10 @@ int main(){
                     } else if(!strncmp(ANSWER_CODE, buffer, strlen(ANSWER_CODE))){
                         char *token = strtok(buffer,":");
                         token = strtok(NULL,":");
-                        add_answer(token, clients[i].userName, dbA, clients[i].socket);                        
-                        
+                        add_answer(token, clients[i].userName, dbA, clients[i].socket);    
                         
                     } else if(!strncmp(LISTFILES_CODE, buffer, strlen(LISTFILES_CODE))){
-
-                        
+                        list_questions(clients[i].socket, dbQ, dbA);
                         
                     }
                 } //else {} files ---------------------------------------------------------------------------------------------------------------------------------------
