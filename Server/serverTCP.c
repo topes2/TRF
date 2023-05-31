@@ -7,8 +7,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <gdbm.h>
+#include <time.h>
+
 
 #include "network/network.h"
 #include "../configs.h"
@@ -26,9 +27,6 @@ int main(){
     client clients[MAX_CLIENTS];
     int flag = 0; //end 
 
-    char userName[MAX_USERNAME_LENGTH];
-    char password[MAX_PASSWORD_LENGTH];
-
     //server configs
     NetworkS(clients, MAX_CLIENTS);
     serverSocket = Socket();
@@ -40,9 +38,14 @@ int main(){
 
     //Data bases
     GDBM_FILE dbLogin;
+    GDBM_FILE dbAttendance;
 
     //start the dbs
     dbLogin = start_bd("Login");
+    dbAttendance = start_bd("Attendance");
+
+    //start clock
+    time_t start = time(NULL);
 
     //Main cycle
     while(!flag){
@@ -61,31 +64,36 @@ int main(){
         //chat
         for(int i = 0; i < MAX_CLIENTS; i++){
             if(FD_ISSET(clients[i].socket, &readfds)){
-                memset(buffer, 0, strlen(buffer));
+                memset(buffer, 0, BUFFER_SIZE);
                 ssize_t len = read(clients[i].socket, buffer, BUFFER_SIZE);
 
                 if(len <= 0){ //Client left
                     printf("Client %d left.\n", i + 1);
                     close(clients[i].socket);
                     clients[i].socket = 0;
+                    memset(clients[i].userName, 0, strlen(clients[i].userName));
+
+                } else if(!strcmp(buffer, "exit")){ //End of server
+                    break;
+
                 } else if(!strncmp(buffer, LOGIN_CODE, strlen(LOGIN_CODE))){ //Login
                     int loginRes = login(clients[i].userName, buffer, dbLogin);
-
-                    if(loginRes < 0){
-                        write(clients[i].socket, "Someting went wrong, please try again\n", strlen("Someting went wrong, please try again\n"));
-                    } else if(loginRes == 1){
+                    
+                    if(loginRes == 0){ //loggin done
+                        write(clients[i].socket, "0", strlen("0"));
+                        //Attendance
+                        attendance(start, dbAttendance, clients[i].userName);
+                    } else { //error
                         write(clients[i].socket, "1", strlen("1"));
-                    } else {
-                        //String adjust
-                        char *welcomeMSG = malloc(strlen("Welcome " + strlen(clients[i].userName))); 
-                        sprintf(welcomeMSG, "Welcome %s", clients[i].userName); 
-                        write(clients[i].socket, welcomeMSG, strlen(welcomeMSG));
                     }
                     
-                } else { //Q&A
-
-                } 
+                //} else if(){ //Q&A  -------------------------------------------------------------------------------------------------------------------------------------
+                    
+                } //else {} files ---------------------------------------------------------------------------------------------------------------------------------------
             }
+        }
+        if(!strcmp(buffer, "exit")){
+            break;
         }
     }
 
