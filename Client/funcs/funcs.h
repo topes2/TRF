@@ -2,7 +2,7 @@
 #define FUNCS_H
 
 
-char* formating(char *buffer);
+char* formatingLogin(char *buffer);
 int login(int sockfd, char *buffer, char *loginCommand);
 void getInput(char *buffer);
 

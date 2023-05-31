@@ -83,4 +83,5 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){ //list all the que
             keyq = nextkey;
         }
     }
+    write(socket,STOP_LOOP,strlen(STOP_LOOP));
 }

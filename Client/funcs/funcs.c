@@ -7,7 +7,7 @@
 #include "funcs.h"
 
 //Verify if the string is with the format
-char* formating(char *buffer){
+char* formatingLogin(char *buffer){
     char username[MAX_USERNAME_LENGTH];
     char password[MAX_PASSWORD_LENGTH];
 
@@ -28,11 +28,23 @@ char* formating(char *buffer){
 int login(int sockfd, char *buffer, char *loginCommand){
     write(sockfd, loginCommand, strlen(loginCommand));
 
+    char userName[MAX_USERNAME_LENGTH];
+    int codeLen = strlen(LOGIN_CODE);
+    char *points = strchr(loginCommand, ':');
+
+    *points = '\0';
+    strcpy(userName, loginCommand + codeLen);
+
     memset(buffer, 0, strlen(buffer));
     read(sockfd, buffer, BUFFER_SIZE);
+    int res = atoi(buffer);
+    
+    if(res == 1){
+        printf("Error %s\n", userName);
+        return 0;
+    } 
 
-    printf("server: %s", buffer);
-
+    printf("Welcome %s\n", userName);
     return 1;
 }
 

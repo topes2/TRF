@@ -33,21 +33,17 @@ int main(){
     //loop
     while(1){
         //Interaction
-        if(doingstuff != 1){
-            getInput(buffer);
-        }
+        getInput(buffer);
 
         if(!loggedin){ 
-            doingstuff = 1;
-            char *loginCommand = formating(buffer);
+            char *loginCommand = formatingLogin(buffer);
            if(loginCommand == NULL){
                 printf("Invalid login command\n");
             } else {
                 loggedin = login(sockfd, buffer, loginCommand);
             }
-            doingstuff = 0;
         } else { //its already logged in
-            printf("Other\n");
+            
         } 
     }
 
