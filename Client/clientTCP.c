@@ -47,12 +47,12 @@ int main(){
             char *res = formatingQ_A(buffer);
             if (res != NULL){
                 write(sockfd, res, strlen(res));
-                if(!strncmp(res, ASK_CODE, strlen(ASK_CODE))){
+                if(!strncmp(res, ASK_CODE, strlen(ASK_CODE)) || !strncmp(res, ANSWER_CODE, strlen(ANSWER_CODE))){
                     memset(buffer, 0, BUFFER_SIZE);
                     read(sockfd, buffer, BUFFER_SIZE);
 
                     printf("%s", buffer);
-                }
+                } 
             } else {
                 printf("Invalid Command\n");
             }

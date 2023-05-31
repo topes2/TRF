@@ -39,7 +39,7 @@ int search_question(char question[], GDBM_FILE db){ //verifica se existe na base
     return 0;
 }
 
-void add_answer(char *answer, char *userid, GDBM_FILE db){ // adding the user provided answer to the data base
+void add_answer(char *answer, char *userid, GDBM_FILE db, int socket){ // adding the user provided answer to the data base
     char *token = strtok(answer,":");
     char aid[strlen(token)];
     strcpy(aid, token);
@@ -48,11 +48,14 @@ void add_answer(char *answer, char *userid, GDBM_FILE db){ // adding the user pr
     char *id = malloc(strlen(aid) + strlen(userid) + 2);
 
     sprintf(id, "%s - %s", aid, userid);
-    printf("Id: %s\n", id);
 
     if(regs(id, answer, db) != 0){
         replace_value(aid, answer, db);
     }
+
+    char *res = malloc(strlen("REGISTERED ") + strlen(aid) + 1);
+    sprintf(res, "REGISTERED %s\n", aid);
+    write(socket, res, strlen(res));
 }
 
 void remove_answer(char id[], char userid[], GDBM_FILE db){//remover a resposta da base de dados

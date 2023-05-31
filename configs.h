@@ -5,7 +5,7 @@
 
 
 //server
-#define PORT 5567
+#define PORT 5555
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 100
 
