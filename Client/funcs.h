@@ -1,1 +1,0 @@
-int formatting(char string[]);
