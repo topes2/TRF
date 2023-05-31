@@ -40,12 +40,24 @@ int regs(char string[], char string1[], GDBM_FILE db){ //string == username stri
     content.dsize = strlen(content.dptr) + 1;
 
     int result = gdbm_store(db, key, content, GDBM_INSERT);
-    if (result != 0) {
-        fprintf(stderr, "Couldn't insert item into database: %s\n", gdbm_strerror(gdbm_errno));
-        return 1;
+    return result;
+    /*if (result != 0) {
+        //fprintf(stderr, "Couldn't insert item into database: %s\n", gdbm_strerror(gdbm_errno));
+        return -1;
     }
-
     return 0;
+    */
+}
+
+void replace_value(char string[], char string1[], GDBM_FILE db){
+        datum key, content;
+    //Key and content for the db
+    key.dptr = string; //ID (index da DB)
+    key.dsize = strlen(key.dptr) + 1; // + 1 for the '\0'
+
+    content.dptr = string1; //Password
+    content.dsize = strlen(content.dptr) + 1;
+    gdbm_store(db, key, content, GDBM_REPLACE);
 }
 
 
@@ -78,11 +90,11 @@ int loginDB(char string[], char string1[], GDBM_FILE db){
         content = gdbm_fetch(db, key);
 
         if (!strcmp(content.dptr, passkey.dptr)){
-            return 1; //found and pass correct
+            return 0; //correct
         } else {
             return -1; //Wrong password
         }
     } 
     
-    return 0; //cant find
+    return 1; //cant find
 }

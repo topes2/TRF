@@ -12,7 +12,6 @@
 
 #include "network/network.h"
 #include "../configs.h"
-#include "backup/backup.h"
 #include "databases/db.h"
 #include "funcs/funcs.h"
 
@@ -24,7 +23,11 @@ int main(){
     fd_set readfds;
 
     //Client management
-    clientData clients[MAX_CLIENTS];
+    client clients[MAX_CLIENTS];
+    int flag = 0; //end 
+
+    char userName[MAX_USERNAME_LENGTH];
+    char password[MAX_PASSWORD_LENGTH];
 
     //server configs
     NetworkS(clients, MAX_CLIENTS);
@@ -41,18 +44,6 @@ int main(){
     //start the dbs
     dbLogin = start_bd("Login");
 
-    //threads for backup
-    pthread_t time;
-    volatile int flag = 0; //flag that ends the program
-    backupArgs args;
-    args.flag = &flag;
-
-    //thread creation
-    if (pthread_create(&time, NULL, Backup, &args)) {
-        printf("Thread creation error\n");
-        return 1;
-    }
-
     //Main cycle
     while(!flag){
         //Select
@@ -61,31 +52,41 @@ int main(){
         }
 
         //New connection
-        handleNewConnection(serverSocket, &readfds, dbLogin, &client_addr, &addr_len, clients, &flag);  
+        if(FD_ISSET(serverSocket, &readfds)){
+            if(acceptNewConnection(serverSocket, clients, &client_addr, &addr_len) < 0){
+                break;
+            }
+        }    
 
-        /* remover !!!!!!!!!!!!!!!!!!!!!!!!!!!
         //chat
         for(int i = 0; i < MAX_CLIENTS; i++){
             if(FD_ISSET(clients[i].socket, &readfds)){
-                //Leitura dos clientes
                 memset(buffer, 0, strlen(buffer));
                 ssize_t len = read(clients[i].socket, buffer, BUFFER_SIZE);
 
+                if(len <= 0){ //Client left
+                    printf("Client %d left.\n", i + 1);
+                    close(clients[i].socket);
+                    clients[i].socket = 0;
+                } else if(!strncmp(buffer, LOGIN_CODE, strlen(LOGIN_CODE))){ //Login
+                    int loginRes = login(clients[i].userName, buffer, dbLogin);
 
-                if(len <= 0){ //Cliente exit
-                    clientExit(clients, i);
-                } else {
-                    if(!strncmp(LOGIN_CODE, buffer, strlen(LOGIN_CODE))){ //User trying to login
-                        clientLogin(clients[i].socket, buffer, dbLogin);
+                    if(loginRes < 0){
+                        write(clients[i].socket, "Someting went wrong, please try again\n", strlen("Someting went wrong, please try again\n"));
+                    } else if(loginRes == 1){
+                        write(clients[i].socket, "1", strlen("1"));
                     } else {
-                            
+                        //String adjust
+                        char *welcomeMSG = malloc(strlen("Welcome " + strlen(clients[i].userName))); 
+                        sprintf(welcomeMSG, "Welcome %s", clients[i].userName); 
+                        write(clients[i].socket, welcomeMSG, strlen(welcomeMSG));
                     }
+                    
+                } else { //Q&A
 
-                }   
-
+                } 
             }
         }
-        */
     }
 
     //closes

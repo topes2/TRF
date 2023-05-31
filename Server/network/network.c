@@ -7,12 +7,9 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <sys/select.h>
-#include <gdbm.h>
-#include <pthread.h>
 
 #include "network.h"
 #include "../../configs.h"
-#include "../funcs/funcs.h"
 
 //Socket creation
 int Socket(){
@@ -26,7 +23,7 @@ int Socket(){
 
 //server side
 //set defeult value of 0 to clients sockets array
-void NetworkS(clientData *clients, int maxClients){
+void NetworkS(client *clients, int maxClients){
     for (int i = 0; i < maxClients; i++) {
         clients[i].socket = 0;
     }
@@ -55,7 +52,7 @@ void Listen(int serverSocket, int maxClients){
     }
 }
 
-int prepareSelectServer(int serverSocket, clientData *clients, fd_set *readfds, int *maxSocket) {
+int prepareSelectServer(int serverSocket, client *clients, fd_set *readfds, int *maxSocket) {
     FD_ZERO(readfds);
     *maxSocket = serverSocket;
     FD_SET(serverSocket, readfds);
@@ -78,7 +75,7 @@ int prepareSelectServer(int serverSocket, clientData *clients, fd_set *readfds, 
     return activity;
 }
 
-int acceptNewConnection(int serverSocket, clientData *clients, struct sockaddr_in *client_addr, socklen_t *addr_len) {
+int acceptNewConnection(int serverSocket, client *clients, struct sockaddr_in *client_addr, socklen_t *addr_len) {
     int newSocket = accept(serverSocket, (struct sockaddr *)client_addr, addr_len);
     if(newSocket < 0){
         perror("Error accepting connection\n");
@@ -96,68 +93,3 @@ int acceptNewConnection(int serverSocket, clientData *clients, struct sockaddr_i
     }
     return 0;
 }
-
-//Thread
-void *handle_client(void *arg){
-    clientData *data = (clientData *)arg;
-    int clientSocket = data->socket;
-    GDBM_FILE dbLogin = data->dbLogin;
-    volatile int *flag = data->flag;
-    fd_set *readfds = data->readfds;
-
-    char buffer[BUFFER_SIZE];
-
-    //chat
-    printf("start chat!\n");
-    while(!*flag){
-        
-        //Leitura dos clientes
-        memset(buffer, 0, strlen(buffer));
-        printf("read\n");
-        ssize_t len = read(clientSocket, buffer, BUFFER_SIZE);
-
-        printf("client said: %s\n", buffer);
-
-        if(len <= 0){ //Cliente exit
-            //clientExit(clients, i);
-            printf("Client left");
-            close(clientSocket);
-            break;
-        } else {
-            if(!strncmp(LOGIN_CODE, buffer, strlen(LOGIN_CODE))){ //User trying to login
-                //clientLogin(clientSocket, buffer, dbLogin);
-            } else {
-                            
-            }
-
-        }   
-    }
-    printf("Exit chat\n");
-}
-
-void handleNewConnection(int serverSocket, fd_set *readfds, GDBM_FILE dbLogin, struct sockaddr_in *client_addr, socklen_t *addr_len, clientData *clients, volatile int *flag){
-    if(FD_ISSET(serverSocket, readfds)){
-        //New connection
-        int newSocket = acceptNewConnection(serverSocket, clients, client_addr, addr_len); 
-        if(newSocket < 0){
-            return;
-        }
-        
-        //Thread creation for the conection
-        pthread_t clientThread;
-        clientData *data = malloc(sizeof(clientData));
-        data->socket = newSocket;
-        data->dbLogin = dbLogin;
-        data->flag = flag;
-        data->readfds = readfds;
-
-        if(pthread_create(&clientThread, NULL, handle_client, data)){
-            printf("Client thread creation error");
-            close(newSocket);
-        } else {
-            pthread_detach(clientThread);//free resourses when done
-        }
-
-    } 
-}
-

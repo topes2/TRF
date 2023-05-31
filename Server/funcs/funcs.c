@@ -1,60 +1,38 @@
-#include <stdio.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <gdbm.h>
-#include <unistd.h>
 
-#include "../../configs.h"
-#include "../network/network.h"
-#include "funcs.h"
 #include "../databases/db.h"
+#include "funcs.h"
+#include "../../configs.h"
 
-void clientExit(clientData *clients, int num){
-    close(clients[num].socket);
-    
-    //starting values of socket and username
-    clients[num].socket = 0;
-    memset(clients[num].userName, 0, strlen(clients[num].userName)); 
-
-    //Exit message
-    printf("Client %d left.\n", num + 1);
-}
-
-//login
-void clientLogin(int clientSocket, char *buffer, GDBM_FILE db){
+int login(char *username, char *buffer, GDBM_FILE db){
     char userName[MAX_USERNAME_LENGTH];
     char password[MAX_PASSWORD_LENGTH];
 
-    int codeLen = strlen(LOGIN_CODE);
+     int codeLen = strlen(LOGIN_CODE);
 
     //find the char ':'
     char *points = strchr(buffer, ':');
 
-    if(points != NULL){
-        //Obtain pass and username
-        strcpy(password, points + 1);
-        *points = '\0';
-        strcpy(userName, buffer + codeLen);
+    if(points == NULL){
+        return -1;
+    } 
 
-        int loginResult = loginDB(userName, password, db); //0 - cant find, 1 - wrong pass, username - login done
+    //Obtain pass and username
+    strcpy(password, points + 1);
+    *points = '\0';
+    strcpy(userName, buffer + codeLen);
 
-        if (loginResult == -1){ //Wrong password
-            write(clientSocket, "1", strlen("1"));
+    int res = loginDB(userName, password, db);//1 - cant find, -1 - wrong pass, 0 - login done
 
-        } else if(loginResult == 0){ //cant find register
-            write(clientSocket, "2", strlen("2"));
-
-            memset(buffer, 0, strlen(buffer));
-            read(clientSocket, buffer, BUFFER_SIZE);
-
-            printf("Client said: %s\n", buffer);
-            
-        } else { //done
-            write(clientSocket, "3", strlen("3"));
-
+    if(res < 1){ //wrong password
+        return 1;
+    } else if(res > 0){ //registo
+        if(regs(userName, password, db) != 0){
+            return -1; //Error inserting
         }
+    } 
 
-    } else {
-        write(clientSocket, "Someting went wrong, please try again\n", strlen("Someting went wrong, please try again\n"));
-    }
+    strcpy(username, userName);
+    return 0; //login done
 }

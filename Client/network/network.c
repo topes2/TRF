@@ -46,9 +46,11 @@ void Connect(int sockfd, struct sockaddr_in serv_addr){
     }
 }
 
-int readFromServer(int sockfd, fd_set *readfds, char *buffer, int loggedin, int firstmsg) {
+
+int readFromServer(int sockfd, char *buffer) {
     memset(buffer, 0, BUFFER_SIZE);
-    ssize_t len = read(sockfd, buffer, sizeof(buffer));
+    ssize_t len = read(sockfd, buffer, BUFFER_SIZE);
+
     //if the server disconects
     if (len <= 0) {
         printf("Server disconnected...\n");
@@ -56,26 +58,6 @@ int readFromServer(int sockfd, fd_set *readfds, char *buffer, int loggedin, int 
     }
 
     //Server responses
-    if(loggedin || firstmsg){
-        printf("%s", buffer);
-        firstmsg = 0;
-    }
-    
+    printf("%s", buffer);
     return 0;
-}
-
-
-//Select
-int prepareSelect(int sockfd, fd_set *readfds, int *max_fd){
-    FD_ZERO(readfds);
-    FD_SET(sockfd, readfds);
-    FD_SET(STDIN_FILENO, readfds);
-    *max_fd = (sockfd > STDIN_FILENO) ? sockfd : STDIN_FILENO;
-
-    int activity = select(*max_fd + 1, readfds, NULL, NULL, NULL);
-    if (activity < 0) {
-        perror("Error in select");
-        return -1;
-    }
-    return activity;
 }

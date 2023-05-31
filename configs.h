@@ -5,11 +5,12 @@
 
 
 //server
-#define PORT 5554
+#define PORT 5556
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 100
 
 //Q&A
+
 #define MAX_ANSWER 100
 #define MAX_LEGTH 1024
 
