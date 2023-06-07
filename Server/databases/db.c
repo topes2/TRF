@@ -43,7 +43,7 @@ int regs(char string[], char string1[], GDBM_FILE db){ //string == username stri
 }
 
 void replace_value(char string[], char string1[], GDBM_FILE db){
-        datum key, content;
+    datum key, content;
     //Key and content for the db
     key.dptr = string; //ID (index da DB)
     key.dsize = strlen(key.dptr) + 1; // + 1 for the '\0'

@@ -41,16 +41,18 @@ int search_question(char question[], GDBM_FILE db){ //verifica se existe na base
 
 void add_answer(char *answer, char *userid, GDBM_FILE db, int socket){ // adding the user provided answer to the data base
     char *token = strtok(answer,":");
+    
+    //n Question
     char aid[strlen(token)];
     strcpy(aid, token);
+
     token = strtok(NULL,":");
 
-    char *id = malloc(strlen(aid) + strlen(userid) + 2);
+    char *id = malloc(strlen(token) + strlen(userid) + 2);
+    sprintf(id, "%s:%s", answer, userid);
 
-    sprintf(id, "%s - %s", aid, userid);
-
-    if(regs(id, answer, db) != 0){
-        replace_value(aid, answer, db);
+    if(regs(id, token, db) != 0){
+        replace_value(id, token, db);
     }
 
     char *res = malloc(strlen("REGISTERED ") + strlen(aid) + 1);
@@ -83,6 +85,7 @@ void return_question(int socket, GDBM_FILE db, char question[]){
         q = qdb;
     }
 }
+
 
 /*
 void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){ //list all the question and anwsers to the user that requested them
@@ -134,56 +137,89 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
     datum kq,kqc;
     datum tk;
     int counter = 0;
+
     kq = gdbm_firstkey(qdb);
     while(kq.dptr){
-        printf("while 1 \n");
+        printf("Kq: %s\n", kq.dptr);
         kqc = gdbm_fetch(qdb, kq); 
+
         if(!kqc.dptr){
             printf("break\n");
             break;
         }
         
         char *question = malloc(strlen(kq.dptr) + strlen(kqc.dptr) + 5);
-        sprintf(question, "(%s) %s", kq.dptr, kqc.dptr);
+        sprintf(question, "(%s) %s \n", kq.dptr, kqc.dptr);
         printf("Question: %s\n", question);
         //write(socket, question, strlen(question));
 
+        /*
+        printf("BAse de dados\n");
+        print_gdbm_contents(adb);
+        printf("Base de dados end\n");
+        */
         ka = gdbm_firstkey(adb);
         while(ka.dptr){
-            char *token = strtok(ka.dptr,"-");
-            printf("token = %s key = %s \n",token,kq.dptr);
+            printf("While x \n");
+            printf("ka: %s\n", ka.dptr);
+            char *token = strtok(ka.dptr,":");
+            printf("token = .%s. key = %s \n",token,kq.dptr);
+            
             if(!strcmp(token, kq.dptr)){
+                printf("entrou \n");
                 counter++;
-                token = strtok(NULL,"-");
-                kac = gdbm_fetch(adb, ka); 
+                token = strtok(NULL,":");
+                //user
+                printf("user: %s\n", token);
+                kac = gdbm_fetch(adb, ka);
+                printf("answer in db: %s\n", kac.dptr);
                 if(!kac.dptr){
                     printf("breakA\n");
                     break;
-                }                
-                //printf("Token: %s\ncontent: %s\n", token, kac.dptr);
+                }
                 if(!token){
                     break;
                 }
+                
                 char *ans = malloc(strlen(token) + kac.dsize + 5);
                 sprintf(ans, "(%s) %s\n", token, kac.dptr);
                 //printf("ans: %s\n", ans);
                 //write(socket, ans, strlen(ans));                 
             }
 
-            if(counter == 0){
-                write(socket,"NOT ANSWERED\n",strlen("NOT ANSWERED\n"));
-            }
-
-            tk = gdbm_nextkey(adb,ka);
-            ka = tk;    
-                  
-            
+            printf("next anwser \n");
+            tk = gdbm_nextkey(adb, ka);
+            printf("next key: %s\n", tk.dptr);
+            ka = tk;
         }
+
+        if(counter == 0){
+            write(socket,"NOT ANSWERED\n",strlen("NOT ANSWERED\n"));
+        }
+
+        counter = 0;
         tk = gdbm_nextkey(qdb,kq);
         kq = tk;        
-        token = strtok(kq.dptr,"-");
+        
     }
 
     printf("%s\n", ENDQUESTIONS);
     //write(socket, ENDQUESTIONS, strlen(ENDQUESTIONS));
+}
+
+
+
+//debug
+void print_gdbm_contents(GDBM_FILE db) {
+    datum key = gdbm_firstkey(db);
+
+    while (key.dptr) {
+        datum value = gdbm_fetch(db, key);
+        printf("Key: %s\n", (char *)key.dptr);
+        printf("Value: %s\n", (char *)value.dptr);
+        free(value.dptr);
+        datum next_key = gdbm_nextkey(db, key);
+        free(key.dptr);
+        key = next_key;
+    }
 }

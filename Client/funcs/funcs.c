@@ -36,7 +36,7 @@ char* formatingQ_A(char *buffer){
     } else if(!strncmp("ANSWER ", buffer, strlen("ANSWER "))){
         int Qnum;
         char *ans;
-        if(sscanf(buffer, "ANSWER %d %s", &Qnum, ans) != 2){
+        if(sscanf(buffer, "ANSWER %d %[^\n]", &Qnum, ans) != 2){
             printf("Invalid command\n");
             return NULL; //comando invalido
         }
