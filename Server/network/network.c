@@ -93,3 +93,20 @@ int acceptNewConnection(int serverSocket, client *clients, struct sockaddr_in *c
     }
     return 0;
 }
+
+/*
+void writear(int socket,char* message){
+    int som = strlen(message);
+    int parts = som/BUFFER_SIZE;
+    if(som < BUFFER_SIZE){
+        write(socket,message,strlen(message));
+    }else{
+        while (parts > 1){
+            write()//writes the amaunt of parts that the server is going to send, we could have used a queue here            
+        }
+        
+    }
+    
+    
+}
+*/

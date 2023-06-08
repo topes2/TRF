@@ -88,9 +88,10 @@ void QandA(int sockfd, char *buffer, char *res){
         do{
             memset(buffer, 0, BUFFER_SIZE);
             read(sockfd, buffer, BUFFER_SIZE);
+           
             printf("%s", buffer);
-
-        } while(strcmp(buffer, ENDQUESTIONS));
+            
+        } while(strstr(buffer, ENDQUESTIONS) == NULL);
     }
 }
 
