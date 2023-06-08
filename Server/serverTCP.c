@@ -96,6 +96,7 @@ int main(){
                     
                 } else { //Q&A  -------------------------------------------------------------------------------------------------------------------------------------
                     if(!strncmp(ASK_CODE, buffer, strlen(ASK_CODE))){
+                        printf("ASK - user: %s\n", clients[i].userName);
                         char *token = strtok(buffer,":");
                         token = strtok(NULL,":");    
                         if(!search_question(token, dbQ)){
@@ -104,13 +105,14 @@ int main(){
                         } else {
                             return_question(clients[i].socket, dbQ, token);
                         }
-                        
+
                     } else if(!strncmp(ANSWER_CODE, buffer, strlen(ANSWER_CODE))){
-                        printf("Buffer %s\n",buffer);
+                        printf("ANSWER - user: %s\n", clients[i].userName);
                         char *token = strstr(buffer, ":") + 1;
                         add_answer(token, clients[i].userName, dbA, clients[i].socket);
                         
                     } else if(!strncmp(LISTFILES_CODE, buffer, strlen(LISTFILES_CODE))){
+                        printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
                         list_questions(clients[i].socket, dbQ, dbA);
                         
                     }
