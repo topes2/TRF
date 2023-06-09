@@ -51,6 +51,21 @@ char* formatingQ_A(char *buffer){
 
     }
 
+    if(!strncmp("PUTFILE ", buffer, strlen("PUTFILE "))){
+        char *fileName = malloc(strlen(buffer) - strlen("PUTFILE ") + 1);
+        int nBytes;
+
+        if(sscanf(buffer, "PUTFILE %s %d", fileName, &nBytes) != 2){
+            return NULL;
+        }
+
+        char *res = malloc(strlen(PUTFILES_CODE) + strlen(fileName) + sizeof(nBytes) + 3);   
+
+        sprintf(res, "%s:%s:%d", PUTFILES_CODE, fileName, nBytes);
+
+        return res;    
+    }
+
     return NULL;
 }
 

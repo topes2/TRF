@@ -48,7 +48,9 @@ int main(){
             if (res != NULL){
                 if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTFILES_CODE, res, strlen(LISTQUESTIONS_CODE))){
                     QandA(sockfd, buffer, res);
-                } 
+                } else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE)) ){
+                    //write
+                }
             } else {
                 printf("Invalid Command\n");
             }

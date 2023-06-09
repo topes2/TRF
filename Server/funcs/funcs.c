@@ -51,9 +51,9 @@ void attendance(time_t start, GDBM_FILE db, char *username){
     char *key = malloc(10 + strlen(username)); //10 because date and -
     sprintf(key, "%d/%d/%d-%s", day, month, year, username);
 
-    if(time > ABSENT_TIME ){ //-1
+    if(time >= ABSENT_TIME ){ //-1
         regs(key, "-1", db);
-    } else if (time > LATE_TIME){ //0
+    } else if (time >= LATE_TIME){ //0
         regs(key, "0", db);
     } else { //present 1
         regs(key, "1", db);
