@@ -63,24 +63,28 @@ int readFromServer(int sockfd, char *buffer) {
 }
 
 void writear(int socket, char* buffer){
-    int nBytes = strlen(buffer);
-    char *nBytesString = malloc(sizeof(nBytes));
-    sprintf(nBytesString, "%d", nBytes);
+    printf("Begin write!\n");
+    write(socket, READ_CODE, strlen(READ_CODE)); //Anounce to the server
 
+    int nBytes = strlen(buffer);
+    char nBytesString[22];
+
+    sprintf(nBytesString, "%d\n", nBytes);
     write(socket, nBytesString, strlen(nBytesString));
 
     if(nBytes <= MAX_MESSAGE_LENGTH){
-        printf("< 1024\n");
-        write(socket, buffer, MAX_MESSAGE_LENGTH);
+        write(socket, buffer, nBytes);
     } else {
         char *pt = buffer;
-        char *message = malloc(MAX_MESSAGE_LENGTH);
+        char *message = malloc(MAX_MESSAGE_LENGTH); 
 
         while(nBytes > 0){
-            memset(message, 0, MAX_MESSAGE_LENGTH);
             strncpy(message, pt, MAX_MESSAGE_LENGTH);
-            write(socket, message, MAX_MESSAGE_LENGTH);
-            pt += MAX_MESSAGE_LENGTH;
+            write(socket, message, strlen(message));
+            memset(message, 0, MAX_MESSAGE_LENGTH);
+            pt += MAX_MESSAGE_LENGTH - 1;        
         }
     }
+
+    printf("End write\n");
 }

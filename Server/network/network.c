@@ -95,34 +95,44 @@ int acceptNewConnection(int serverSocket, client *clients, struct sockaddr_in *c
 }
 
 
-char* readar(int socket, char* buffer){
+int readar(int socket, char* buffer){
+    printf("Begin read!\n");
+
     int nBytes;
-    char *message = malloc(MAX_MESSAGE_LENGTH);
-
-    memset(message, 0, MAX_MESSAGE_LENGTH);
-    read(socket, message, MAX_MESSAGE_LENGTH);
+    char nBytesString[21];
+    char c;
 
 
-    if(sscanf(message, "%d", &nBytes) != 1){
-        return NULL;
+    //read char by char until we find \n to end
+    int i = 0;
+    do{
+        read(socket, &c, 1);
+        nBytesString[i] = c;
+        i++;
+    } while(c != '\n');
+    nBytesString[i] = '\0';
+
+    if(sscanf(nBytesString, "%d", &nBytes) != 1){
+        return -1;
     }
 
     memset(buffer, 0, BUFFER_SIZE);
 
     if(nBytes <= MAX_MESSAGE_LENGTH){
-        printf("< 1024\n");
         read(socket, buffer, MAX_MESSAGE_LENGTH);
     } else {
         char *pt = buffer;
+        char *message = malloc(MAX_MESSAGE_LENGTH);
 
-        while(nBytes > 0 ){
-            memset(message, 0, MAX_MESSAGE_LENGTH);
+        while(nBytes > 0){
             read(socket, message, MAX_MESSAGE_LENGTH);
-            strncpy(buffer, message, strlen(message));
-            nBytes -= MAX_MESSAGE_LENGTH;
+            strncpy(pt, message, MAX_MESSAGE_LENGTH);
+            memset(message, 0, MAX_MESSAGE_LENGTH);
             pt += MAX_MESSAGE_LENGTH;
         }
     }
-
-    return NULL;
+    
+    
+    printf("ENd read!\n");
+    return 0;
 }

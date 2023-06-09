@@ -74,6 +74,7 @@ int main(){
                 memset(buffer, 0, BUFFER_SIZE);
                 ssize_t len = read(clients[i].socket, buffer, BUFFER_SIZE);
 
+                printf("check!\n");
                 if(len <= 0){ //Client left
                     printf("%s left.\n", clients[i].userName);
                     close(clients[i].socket);
@@ -115,15 +116,10 @@ int main(){
                         printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
                         list_questions(clients[i].socket, dbQ, dbA);
                         
-                    } else {
-                        printf("reading!\n");
-                        if(readar(clients[i].socket, buffer)){
-                            printf("NULL!\n");
-                        } else {
-                            printf("%s", buffer);
-                        }
-
-                        printf("Done!\n");
+                    } else if(!strcmp(buffer, READ_CODE)){
+                        printf("Here!\n");
+                        readar(clients[i].socket, buffer);
+                        printf("Message: %s\n", buffer);
 
                     }
                 } 

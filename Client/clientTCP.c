@@ -55,9 +55,7 @@ int main(){
                 //printf("Invalid Command\n");
                 
                 //Take this out !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                printf("Writing: %s\n with size: %ld\n", buffer, strlen(buffer));
                 writear(sockfd, buffer);
-                printf("Done!\n");
             }
         } 
     }
