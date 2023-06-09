@@ -50,9 +50,15 @@ int main(){
                     QandA(sockfd, buffer, res);
                 } else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE)) ){
                     //write
-                }
+                } 
             } else {
-                printf("Invalid Command\n");
+                //printf("Invalid Command\n");
+
+
+                //Take this out !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                writear(sockfd, buffer);
+
+                readar(sockfd, buffer);
             }
         } 
     }

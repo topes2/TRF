@@ -75,7 +75,7 @@ int main(){
                 ssize_t len = read(clients[i].socket, buffer, BUFFER_SIZE);
 
                 if(len <= 0){ //Client left
-                    printf("Client %d left.\n", i + 1);
+                    printf("%s left.\n", clients[i].userName);
                     close(clients[i].socket);
                     clients[i].socket = 0;
                     memset(clients[i].userName, 0, strlen(clients[i].userName));

@@ -61,3 +61,45 @@ int readFromServer(int sockfd, char *buffer) {
     printf("%s", buffer);
     return 0;
 }
+
+void writear(int socket, char* message){
+    printf("Message length: %ld\n", strlen(message));
+    int cycles = (strlen(message) / MAX_MESSAGE_LENGTH) + 1;
+
+    printf("ncyles: %d\n", cycles);
+
+    char *nCycles = malloc(sizeof(cycles));
+    sprintf(nCycles, "%d", cycles);
+
+    printf("string cycles: %s\n", nCycles);
+    
+    //write(socket, nCycles, strlen(nCycles));
+
+    char *pt = message;
+    char *messageAux = malloc(MAX_MESSAGE_LENGTH);
+
+    if(cycles == 1){
+        printf("write normal\n");
+        //write(socket, message, strlen(message));
+    } else {
+        for(int i = 0; i < cycles; i++){
+            strncpy(messageAux, pt, MAX_MESSAGE_LENGTH);
+            printf("%s", messageAux);
+            //write
+            memset(messageAux, 0, MAX_MESSAGE_LENGTH);
+            pt += MAX_MESSAGE_LENGTH;
+        }
+    }
+}
+
+char* readar(int socket, char* buffer){
+    char nCyclesString[10];
+    //read(socket, nCyclesString, sizeof(nCycles));
+    int nCycles = 1;
+
+    sscanf(nCyclesString, "%d", &nCycles);
+    
+    printf("nCycles = %d\n", nCycles);
+
+    return NULL;
+}
