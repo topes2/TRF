@@ -115,6 +115,16 @@ int main(){
                         printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
                         list_questions(clients[i].socket, dbQ, dbA);
                         
+                    } else {
+                        printf("reading!\n");
+                        if(readar(clients[i].socket, buffer)){
+                            printf("NULL!\n");
+                        } else {
+                            printf("%s", buffer);
+                        }
+
+                        printf("Done!\n");
+
                     }
                 } 
             }

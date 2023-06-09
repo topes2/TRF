@@ -53,12 +53,11 @@ int main(){
                 } 
             } else {
                 //printf("Invalid Command\n");
-
-
+                
                 //Take this out !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                printf("Writing: %s\n with size: %ld\n", buffer, strlen(buffer));
                 writear(sockfd, buffer);
-
-                readar(sockfd, buffer);
+                printf("Done!\n");
             }
         } 
     }

@@ -5,11 +5,11 @@
 
 
 //server
-#define PORT 5551
+#define PORT 5550
 #define BUFFER_SIZE 5000
 #define MAX_MESSAGE_LENGTH 1024
 #define MAX_CLIENTS 100
-#define PARTSCODE "!#?)&/"
+#define WRITE_CODE "%&/(#)"
 
 //Q&A
 #define MAX_ANSWER 100

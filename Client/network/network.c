@@ -62,44 +62,25 @@ int readFromServer(int sockfd, char *buffer) {
     return 0;
 }
 
-void writear(int socket, char* message){
-    printf("Message length: %ld\n", strlen(message));
-    int cycles = (strlen(message) / MAX_MESSAGE_LENGTH) + 1;
+void writear(int socket, char* buffer){
+    int nBytes = strlen(buffer);
+    char *nBytesString = malloc(sizeof(nBytes));
+    sprintf(nBytesString, "%d", nBytes);
 
-    printf("ncyles: %d\n", cycles);
+    write(socket, nBytesString, strlen(nBytesString));
 
-    char *nCycles = malloc(sizeof(cycles));
-    sprintf(nCycles, "%d", cycles);
-
-    printf("string cycles: %s\n", nCycles);
-    
-    //write(socket, nCycles, strlen(nCycles));
-
-    char *pt = message;
-    char *messageAux = malloc(MAX_MESSAGE_LENGTH);
-
-    if(cycles == 1){
-        printf("write normal\n");
-        //write(socket, message, strlen(message));
+    if(nBytes <= MAX_MESSAGE_LENGTH){
+        printf("< 1024\n");
+        write(socket, buffer, MAX_MESSAGE_LENGTH);
     } else {
-        for(int i = 0; i < cycles; i++){
-            strncpy(messageAux, pt, MAX_MESSAGE_LENGTH);
-            printf("%s", messageAux);
-            //write
-            memset(messageAux, 0, MAX_MESSAGE_LENGTH);
+        char *pt = buffer;
+        char *message = malloc(MAX_MESSAGE_LENGTH);
+
+        while(nBytes > 0){
+            memset(message, 0, MAX_MESSAGE_LENGTH);
+            strncpy(message, pt, MAX_MESSAGE_LENGTH);
+            write(socket, message, MAX_MESSAGE_LENGTH);
             pt += MAX_MESSAGE_LENGTH;
         }
     }
-}
-
-char* readar(int socket, char* buffer){
-    char nCyclesString[10];
-    //read(socket, nCyclesString, sizeof(nCycles));
-    int nCycles = 1;
-
-    sscanf(nCyclesString, "%d", &nCycles);
-    
-    printf("nCycles = %d\n", nCycles);
-
-    return NULL;
 }

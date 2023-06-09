@@ -93,3 +93,36 @@ int acceptNewConnection(int serverSocket, client *clients, struct sockaddr_in *c
     }
     return 0;
 }
+
+
+char* readar(int socket, char* buffer){
+    int nBytes;
+    char *message = malloc(MAX_MESSAGE_LENGTH);
+
+    memset(message, 0, MAX_MESSAGE_LENGTH);
+    read(socket, message, MAX_MESSAGE_LENGTH);
+
+
+    if(sscanf(message, "%d", &nBytes) != 1){
+        return NULL;
+    }
+
+    memset(buffer, 0, BUFFER_SIZE);
+
+    if(nBytes <= MAX_MESSAGE_LENGTH){
+        printf("< 1024\n");
+        read(socket, buffer, MAX_MESSAGE_LENGTH);
+    } else {
+        char *pt = buffer;
+
+        while(nBytes > 0 ){
+            memset(message, 0, MAX_MESSAGE_LENGTH);
+            read(socket, message, MAX_MESSAGE_LENGTH);
+            strncpy(buffer, message, strlen(message));
+            nBytes -= MAX_MESSAGE_LENGTH;
+            pt += MAX_MESSAGE_LENGTH;
+        }
+    }
+
+    return NULL;
+}
