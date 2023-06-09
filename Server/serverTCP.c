@@ -94,7 +94,7 @@ int main(){
                         write(clients[i].socket, "1", strlen("1"));
                     }
                     
-                } else { //Q&A  -------------------------------------------------------------------------------------------------------------------------------------
+                } else { //Isloggedin
                     if(!strncmp(ASK_CODE, buffer, strlen(ASK_CODE))){
                         printf("ASK - user: %s\n", clients[i].userName);
                         char *token = strtok(buffer,":");
@@ -116,7 +116,7 @@ int main(){
                         list_questions(clients[i].socket, dbQ, dbA);
                         
                     }
-                } //else {} files ---------------------------------------------------------------------------------------------------------------------------------------
+                } 
             }
         }
         if(!strcmp(buffer, "exit")){

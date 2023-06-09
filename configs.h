@@ -8,6 +8,7 @@
 #define PORT 5552
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 100
+#define PARTSCODE "!#?)&/"
 
 //Q&A
 #define MAX_ANSWER 100
