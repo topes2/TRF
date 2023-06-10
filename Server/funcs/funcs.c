@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <gdbm.h>
 #include <time.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "../databases/db.h"
 #include "funcs.h"
@@ -57,5 +59,17 @@ void attendance(time_t start, GDBM_FILE db, char *username){
         regs(key, "0", db);
     } else { //present 1
         regs(key, "1", db);
+    }
+}
+
+//Directories
+int directory_exists(char* path) {
+    struct stat buffer;
+    return (stat(path, &buffer) == 0);
+}
+
+void create_directory(char* path) {
+    if(!directory_exists(path)) {
+        mkdir(path, 0700);
     }
 }

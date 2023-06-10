@@ -46,16 +46,14 @@ int main(){
             //Q&A
             char *res = formatingQ_A(buffer);
             if (res != NULL){
-                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTFILES_CODE, res, strlen(LISTQUESTIONS_CODE))){
+                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE))){
                     QandA(sockfd, buffer, res);
                 } else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE)) ){
                     //write
                 } 
             } else {
-                //printf("Invalid Command\n");
-                
-                //Take this out !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                writear(sockfd, buffer);
+                printf("Invalid Command\n");
+        
             }
         } 
     }

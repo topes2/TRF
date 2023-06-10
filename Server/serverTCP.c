@@ -9,6 +9,8 @@
 #include <unistd.h>
 #include <gdbm.h>
 #include <time.h>
+#include <limits.h>
+#include <sys/stat.h>
 
 
 #include "network/network.h"
@@ -45,11 +47,47 @@ int main(){
     GDBM_FILE dbQ;
     GDBM_FILE dbA;
 
-    //start the dbs
-    dbLogin = start_bd("Login");
-    dbAttendance = start_bd("Attendance");
-    dbQ = start_bd("Q");
-    dbA = start_bd("A");
+    //Directories
+    long pathMax = pathconf(".", _PC_PATH_MAX);
+    char *cwd, *newDir;
+
+    cwd = malloc(pathMax);
+    newDir = malloc(pathMax);
+
+    if(getcwd(cwd, pathMax) == NULL){
+        printf("Directories error!\n");
+        return -1;
+    }
+
+    strcpy(newDir, cwd);
+    strcat(newDir, "/DatabasesFiles");
+
+    create_directory(newDir);
+
+    // start the dbs
+    char *dbPath = malloc(pathMax);
+    sprintf(dbPath, "%s/Login", newDir);
+    dbLogin = start_bd(dbPath);
+
+    sprintf(dbPath, "%s/Attendance", newDir);
+    dbAttendance = start_bd(dbPath);
+
+    sprintf(dbPath, "%s/Q", newDir);
+    dbQ = start_bd(dbPath);
+
+    sprintf(dbPath, "%s/A", newDir);
+    dbA = start_bd(dbPath);
+
+    memset(newDir, 0, sizeof(newDir));
+
+    strcpy(newDir, cwd);
+    strcat(newDir, "/FilesUploaded");
+
+    create_directory(newDir);
+
+    free(cwd);
+    free(newDir);
+    free(dbPath);
 
     //start clock
     time_t start = time(NULL);
@@ -72,9 +110,9 @@ int main(){
         for(int i = 0; i < MAX_CLIENTS; i++){
             if(FD_ISSET(clients[i].socket, &readfds)){
                 memset(buffer, 0, BUFFER_SIZE);
-                ssize_t len = read(clients[i].socket, buffer, BUFFER_SIZE);
+                ssize_t len = read(clients[i].socket, buffer, MAX_MESSAGE_LENGTH);
+                printf("Server buffer: %s\n", buffer);
 
-                printf("check!\n");
                 if(len <= 0){ //Client left
                     printf("%s left.\n", clients[i].userName);
                     close(clients[i].socket);
@@ -112,16 +150,11 @@ int main(){
                         char *token = strstr(buffer, ":") + 1;
                         add_answer(token, clients[i].userName, dbA, clients[i].socket);
                         
-                    } else if(!strncmp(LISTFILES_CODE, buffer, strlen(LISTFILES_CODE))){
+                    } else if(!strncmp(LISTQUESTIONS_CODE, buffer, strlen(LISTQUESTIONS_CODE))){
                         printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
                         list_questions(clients[i].socket, dbQ, dbA);
                         
-                    } else if(!strcmp(buffer, READ_CODE)){
-                        printf("Here!\n");
-                        readar(clients[i].socket, buffer);
-                        printf("Message: %s\n", buffer);
-
-                    }
+                    } 
                 } 
             }
         }

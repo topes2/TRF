@@ -7,7 +7,7 @@
 #include "db.h"
 
 GDBM_FILE start_bd(char string[]){
-    char* newString = malloc(strlen(string) + 5);
+    char* newString = malloc(strlen(string) + 6);
     strcat(newString, string);
     strcat(newString,".gdbm"); //Add type to the name
 

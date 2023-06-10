@@ -47,7 +47,7 @@ char* formatingQ_A(char *buffer){
         return res;
 
     } else if(!strncmp("LISTQUESTIONS", buffer, strlen("LISTQUESTIONS"))){
-        return LISTFILES_CODE;
+        return LISTQUESTIONS_CODE;
 
     }
 
@@ -99,7 +99,7 @@ void QandA(int sockfd, char *buffer, char *res){
         read(sockfd, buffer, BUFFER_SIZE);
 
         printf("%s", buffer);
-    } else if(!strcmp(res, LISTFILES_CODE)){
+    } else if(!strcmp(res, LISTQUESTIONS_CODE)){
         do{
             memset(buffer, 0, BUFFER_SIZE);
             read(sockfd, buffer, BUFFER_SIZE);
