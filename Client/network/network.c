@@ -62,6 +62,17 @@ int readFromServer(int sockfd, char *buffer) {
     return 0;
 }
 
+/*
+int writear(int socket,char* buffer){
+    int size = strlen(buffer);
+    write()
+
+    
+}
+*/
+
+
+/*
 void writear(int socket, char* buffer){
     printf("Begin write!\n");
     write(socket, READ_CODE, strlen(READ_CODE)); //Anounce to the server
@@ -88,3 +99,4 @@ void writear(int socket, char* buffer){
 
     printf("End write\n");
 }
+*/

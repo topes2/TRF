@@ -10,6 +10,6 @@ int readFromServer(int sockfd, char *buffer);
 void Connect(int sockfd, struct sockaddr_in serv_addr);
 
 char* readar(int socket, char* buffer);
-void writear(int socket,char* message);
+int writear(int socket,char* message);
 
 #endif

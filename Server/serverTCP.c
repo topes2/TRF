@@ -18,6 +18,7 @@
 #include "databases/db.h"
 #include "funcs/funcs.h"
 #include "qa/questan.h"
+#include "files/files.h"
 //#include "files/files.h"
 
 
@@ -26,6 +27,7 @@ int main(){
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_len;
     char buffer[BUFFER_SIZE];
+    char bufferr[BUFFER_SIZE];
     fd_set readfds;
 
     //Client management
@@ -46,6 +48,7 @@ int main(){
     GDBM_FILE dbAttendance;
     GDBM_FILE dbQ;
     GDBM_FILE dbA;
+    GDBM_FILE dbFiles;
 
     //Directories
     long pathMax = pathconf(".", _PC_PATH_MAX);
@@ -65,20 +68,27 @@ int main(){
     create_directory(newDir);
 
     // start the dbs
-    char *dbPath = malloc(pathMax);
+    char *dbPath = malloc(pathMax + strlen("Attendance") + 2);
     sprintf(dbPath, "%s/Login", newDir);
     dbLogin = start_bd(dbPath);
 
+    memset(dbPath, 0, strlen(dbPath) + 1);
     sprintf(dbPath, "%s/Attendance", newDir);
     dbAttendance = start_bd(dbPath);
 
+    memset(dbPath, 0, strlen(dbPath) + 1);
     sprintf(dbPath, "%s/Q", newDir);
     dbQ = start_bd(dbPath);
 
+    memset(dbPath, 0, strlen(dbPath) + 1);
     sprintf(dbPath, "%s/A", newDir);
     dbA = start_bd(dbPath);
 
-    memset(newDir, 0, sizeof(newDir));
+    memset(dbPath, 0, strlen(dbPath) + 1);
+    sprintf(dbPath, "%s/Files", newDir);
+    dbFiles = start_bd(dbPath);
+
+    memset(newDir, 0, strlen(newDir));
 
     strcpy(newDir, cwd);
     strcat(newDir, "/FilesUploaded");
@@ -111,6 +121,7 @@ int main(){
             if(FD_ISSET(clients[i].socket, &readfds)){
                 memset(buffer, 0, BUFFER_SIZE);
                 ssize_t len = read(clients[i].socket, buffer, MAX_MESSAGE_LENGTH);
+                //readar(client,bufferr);
                 printf("Server buffer: %s\n", buffer);
 
                 if(len <= 0){ //Client left
@@ -119,10 +130,10 @@ int main(){
                     clients[i].socket = 0;
                     memset(clients[i].userName, 0, strlen(clients[i].userName));
 
-                } else if(!strcmp(buffer, "exit")){ //End of server
+                } else if(!strcmp(bufferr, "exit")){ //End of server
                     break;
 
-                } else if(!strncmp(buffer, LOGIN_CODE, strlen(LOGIN_CODE))){ //Login
+                } else if(!strncmp(bufferr, LOGIN_CODE, strlen(LOGIN_CODE))){ //Login
                     int loginRes = login(clients[i].userName, buffer, dbLogin);
                     
                     if(loginRes == 0){ //loggin done
@@ -134,7 +145,8 @@ int main(){
                     }
                     
                 } else { //Isloggedin
-                    if(!strncmp(ASK_CODE, buffer, strlen(ASK_CODE))){
+                    //readar
+                    if(!strncmp(ASK_CODE, bufferr, strlen(ASK_CODE))){
                         printf("ASK - user: %s\n", clients[i].userName);
                         char *token = strtok(buffer,":");
                         token = strtok(NULL,":");    
@@ -145,16 +157,23 @@ int main(){
                             return_question(clients[i].socket, dbQ, token);
                         }
 
-                    } else if(!strncmp(ANSWER_CODE, buffer, strlen(ANSWER_CODE))){
-                        printf("ANSWER - user: %s\n", clients[i].userName);
-                        char *token = strstr(buffer, ":") + 1;
+                    } else if(!strncmp(ANSWER_CODE, bufferr, strlen(ANSWER_CODE))){
+                        char *token = strstr(bufferr, ":") + 1;
                         add_answer(token, clients[i].userName, dbA, clients[i].socket);
-                        
-                    } else if(!strncmp(LISTQUESTIONS_CODE, buffer, strlen(LISTQUESTIONS_CODE))){
-                        printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
+                        printf("ANSWER - user: %s\n", clients[i].userName);
+
+                    } else if(!strncmp(LISTQUESTIONS_CODE, bufferr, strlen(LISTQUESTIONS_CODE))){
                         list_questions(clients[i].socket, dbQ, dbA);
+                        printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
                         
-                    } 
+                    } else if(!strncmp(PUTFILES_CODE, bufferr, strlen(PUTFILES_CODE))){
+                        putfile(bufferr, dbFiles);
+                        printf("user: %s uploaded a file\n", clients[i].userName);
+
+                    }else {
+                        printf("else read");
+                        readar(clients[i].socket, buffer);
+                    }
                 } 
             }
         }

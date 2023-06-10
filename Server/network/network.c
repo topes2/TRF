@@ -95,6 +95,25 @@ int acceptNewConnection(int serverSocket, client *clients, struct sockaddr_in *c
 }
 
 
+
+
+int readar(int socket, char* buffer){
+    
+}
+
+
+int writear(int socket,char* buffer){
+    int size = strlen()
+}
+
+
+
+
+
+
+
+
+/*
 int readar(int socket, char* buffer){
     printf("Begin read!\n");
 
@@ -133,6 +152,7 @@ int readar(int socket, char* buffer){
     }
     
     
-    printf("ENd read!\n");
+    printf("End read!\n");
     return 0;
 }
+*/

@@ -25,7 +25,7 @@ char* formatingLogin(char *buffer){
     return NULL;
 }
 
-char* formatingQ_A(char *buffer){
+char* formatingQ_A(char *buffer){// switch to switch case if we have time 
 
     if(!strncmp("ASK ", buffer, strlen("ASK "))){ //new questions
         char *res = malloc(strlen(ASK_CODE) + strlen(buffer + strlen("ASK ")));
@@ -92,7 +92,7 @@ int login(int sockfd, char *buffer, char *loginCommand){
     return 1;
 }
 
-void QandA(int sockfd, char *buffer, char *res){
+void QandA(int sockfd, char *buffer, char *res,int size){
     write(sockfd, res, strlen(res));
     if(!strncmp(res, ASK_CODE, strlen(ASK_CODE)) || !strncmp(res, ANSWER_CODE, strlen(ANSWER_CODE))){
         memset(buffer, 0, BUFFER_SIZE);
@@ -111,7 +111,7 @@ void QandA(int sockfd, char *buffer, char *res){
 }
 
 //other
-void getInput(char *buffer){
+int getInput(char *buffer){
     memset(buffer, 0, strlen(buffer));
     fgets(buffer, BUFFER_SIZE, stdin);
             
@@ -120,5 +120,7 @@ void getInput(char *buffer){
     if(fgetsEnd != NULL){
         *fgetsEnd = '\0';
     }
+    return strlen(buffer);
+
 }   
 

@@ -33,7 +33,7 @@ int main(){
     //loop
     while(1){
         //Interaction
-        getInput(buffer);
+        int size = getInput(buffer);
 
         if(!loggedin){ 
             char *loginCommand = formatingLogin(buffer);
@@ -43,17 +43,29 @@ int main(){
                 loggedin = login(sockfd, buffer, loginCommand);
             }
         } else { //its already logged in
-            //Q&A
             char *res = formatingQ_A(buffer);
             if (res != NULL){
+                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE))){
+                    QandA(sockfd, buffer, res,size);
+                }else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE))){
+                    //to be made by the one the only the magestic rui
+                }else if(!strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE)) || !strncmp(LISTFILES_CODE, res, strlen(LISTFILES_CODE)) ||!strncmp(GETFILES_CODE, res, strlen(GETFILES_CODE))){
+                    write(sockfd,res,strlen(res));
+                }
+
+
+
+
+
                 if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE))){
                     QandA(sockfd, buffer, res);
                 } else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE)) ){
-                    //write
+                    write(sockfd, res, strlen(res));
                 } 
             } else {
-                printf("Invalid Command\n");
-        
+                //printf("Invalid Command\n");
+                printf("else\n");
+                writear(sockfd, buffer);
             }
         } 
     }
