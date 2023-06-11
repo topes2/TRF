@@ -12,4 +12,7 @@ int getInput(char *buffer);
 void sends(int socket, char* buffer); // send size
 int recs(int socket); //receive size
 
+int readar(int socket, char* buffer,int size);
+void writear(int socket,char* buffer);
+
 #endif 

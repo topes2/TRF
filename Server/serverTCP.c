@@ -127,11 +127,7 @@ int main(){
                     memset(clients[i].userName, 0, strlen(clients[i].userName));
                 } 
                 if(bytes > MAX_MESSAGE_LENGTH){
-                    printf("tes3.1\n");
                     readar(clients[i].socket, bufferr, bytes);
-                    printf("size of buffer: %d",strlen(bufferr));
-                    printf("Buffer = \n %s \n",bufferr);
-                    printf("tes3.2\n");
                 }else if(bytes <= MAX_MESSAGE_LENGTH){
                     memset(bufferr, 0, bytes);
                     read(clients[i].socket, bufferr, bytes);
@@ -152,15 +148,16 @@ int main(){
                 else { //Isloggedin
                     //readar
                     if(!strncmp(ASK_CODE, bufferr, strlen(ASK_CODE))){
-                        printf("ASK - user: %s\n", clients[i].userName);
                         char *token = strtok(bufferr,":");
                         token = strtok(NULL,":");    
                         if(!search_question(token, dbQ)){
                             add_question(token,dbQ);
+                            printf("add question\n");
                             return_question(clients[i].socket, dbQ, token);
                         } else {
                             return_question(clients[i].socket, dbQ, token);
                         }
+                        printf("ASK - user: %s\n", clients[i].userName);
 
                     } else if(!strncmp(ANSWER_CODE, bufferr, strlen(ANSWER_CODE))){
                         char *token = strstr(bufferr, ":") + 1;

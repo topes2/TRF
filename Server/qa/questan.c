@@ -58,7 +58,7 @@ void add_answer(char *answer, char *userid, GDBM_FILE db, int socket){ // adding
 
     char *res = malloc(strlen("REGISTERED ") + strlen(aid) + 1);
     sprintf(res, "REGISTERED %s\n", aid);
-    write(socket, res, strlen(res));
+    write(socket, res, strlen(res)); //didnt use writear becuase googolplex is impossible
 }
 
 void remove_answer(char id[], char userid[], GDBM_FILE db){//remover a resposta da base de dados
@@ -80,8 +80,10 @@ void return_question(int socket, GDBM_FILE db, char question[]){
         if(!strcmp(qc.dptr,question)){
             char *res = malloc(strlen("QUESTION ") + strlen(q.dptr) + strlen(": ") + strlen(qc.dptr) + strlen("\n") + 1);
             sprintf(res, "QUESTION %s: %s\n", q.dptr, qc.dptr);
+            printf("size res %d",strlen(res));
+            sends(socket,res);
             writear(socket, res);
-            break;
+            printf("sent\n");
         }
         qdb = gdbm_nextkey(db,q);
         q = qdb;
@@ -105,6 +107,7 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
         
         char *question = malloc(strlen(kq.dptr) + strlen(kqc.dptr) + 5);
         sprintf(question, "(%s) %s \n", kq.dptr, kqc.dptr);
+        sends(socket,question);
         writear(socket, question);
 
         ka = gdbm_firstkey(adb);
@@ -129,7 +132,7 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
                 
                 char *ans = malloc(strlen(token) + kac.dsize + 8);
                 sprintf(ans, "   (%s) %s\n", token, kac.dptr);
-            
+                sends(socket,ans);
                 writear(socket, ans);                 
             }
             tk = gdbm_nextkey(adb, ka);
@@ -139,15 +142,16 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
         }
 
         if(counter == 0){
-            write(socket,"   NOT ANSWERED\n",strlen("   NOT ANSWERED\n"));
+            sends(socket,"   NOT ANSWERED\n");
+            writear(socket,"   NOT ANSWERED\n");
         }
 
         counter = 0;
         tk = gdbm_nextkey(qdb,kq);
         kq = tk;        
     }
-
-    write(socket, ENDQUESTIONS, strlen(ENDQUESTIONS));
+    sends(socket,ENDQUESTIONS);
+    writear(socket, ENDQUESTIONS);
 }
 
 

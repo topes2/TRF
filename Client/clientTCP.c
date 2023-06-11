@@ -42,12 +42,9 @@ int main(){
                 sends(sockfd, loginCommand); // send the size to check with the max allowed size of transfers
                 printf("loggind commandsa: %s\n", loginCommand);
                 loggedin = login(sockfd, buffer, loginCommand); //sends the login command to the server
-                printf("login\n");
             }
 
         } else { 
-            printf("chegou \n");
-            
             //its already logged in
             char *res = formating(buffer);
             if (res != NULL){
@@ -65,7 +62,7 @@ int main(){
                 }
 
             } else {
-                //printf("Invalid Command\n");
+                printf("Invalid Command\n");
                 sends(sockfd,buffer);
                 writear(sockfd, buffer);
             }

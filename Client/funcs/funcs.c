@@ -94,18 +94,22 @@ int login(int sockfd, char *buffer, char *loginCommand){
 }
 
 void QandA(int sockfd, char *buffer, char *res){
+    printf("qanda\n");
+    int rec;
     sends(sockfd,res);
     writear(sockfd, res);
     if(!strncmp(res, ASK_CODE, strlen(ASK_CODE)) || !strncmp(res, ANSWER_CODE, strlen(ANSWER_CODE))){
+        printf("ask or ans\n");
         memset(buffer, 0, BUFFER_SIZE);
-        recs(sockfd);
-        readar(sockfd, buffer, BUFFER_SIZE);
-
+        rec = recs(sockfd);
+        printf("sent recs\n");
+        readar(sockfd, buffer, rec);
         printf("%s", buffer);
     } else if(!strcmp(res, LISTQUESTIONS_CODE)){
         do{
             memset(buffer, 0, BUFFER_SIZE);
-            readar(sockfd, buffer, BUFFER_SIZE);
+            rec = recs(sockfd);
+            readar(sockfd, buffer,rec);
            
             printf("%s", buffer);
             
@@ -130,7 +134,6 @@ int getInput(char *buffer){      //reads the user input and returns the size of 
 void sends(int socket,char* buffer){
     int size = strlen(buffer);
     char sizes[5];
-    printf("%s and %d\n",buffer,size);
     sprintf(sizes, "%d\n", size);  
     write(socket,sizes,strlen(sizes));  
 }

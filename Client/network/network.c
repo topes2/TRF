@@ -65,10 +65,13 @@ int readFromServer(int sockfd, char *buffer) {
 int readar(int socket, char* buffer,int size){
     memset(buffer, 0, BUFFER_SIZE);
     char* pt = buffer;
-    while(strlen(buffer) <= size - 1){
+    printf("gay ffs\n");
+    while(strlen(buffer) <= size ){
+        printf("weeeee \n");
         read(socket,pt,MAX_MESSAGE_LENGTH);
         pt += MAX_MESSAGE_LENGTH;
     }
+    printf("gueee \n");
     return strlen(buffer);    
 }
 
