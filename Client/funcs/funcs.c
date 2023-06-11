@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "../funcs/funcs.h"
 
 #include "../../configs.h"
 #include "funcs.h"
@@ -25,7 +26,7 @@ char* formatingLogin(char *buffer){
     return NULL;
 }
 
-char* formatingQ_A(char *buffer){// switch to switch case if we have time 
+char* formating(char *buffer){// switch to switch case if we have time 
 
     if(!strncmp("ASK ", buffer, strlen("ASK "))){ //new questions
         char *res = malloc(strlen(ASK_CODE) + strlen(buffer + strlen("ASK ")));
@@ -92,17 +93,19 @@ int login(int sockfd, char *buffer, char *loginCommand){
     return 1;
 }
 
-void QandA(int sockfd, char *buffer, char *res,int size){
-    write(sockfd, res, strlen(res));
+void QandA(int sockfd, char *buffer, char *res){
+    sends(sockfd,res);
+    writear(sockfd, res);
     if(!strncmp(res, ASK_CODE, strlen(ASK_CODE)) || !strncmp(res, ANSWER_CODE, strlen(ANSWER_CODE))){
         memset(buffer, 0, BUFFER_SIZE);
-        read(sockfd, buffer, BUFFER_SIZE);
+        recs(sockfd);
+        readar(sockfd, buffer, BUFFER_SIZE);
 
         printf("%s", buffer);
     } else if(!strcmp(res, LISTQUESTIONS_CODE)){
         do{
             memset(buffer, 0, BUFFER_SIZE);
-            read(sockfd, buffer, BUFFER_SIZE);
+            readar(sockfd, buffer, BUFFER_SIZE);
            
             printf("%s", buffer);
             
@@ -111,7 +114,7 @@ void QandA(int sockfd, char *buffer, char *res,int size){
 }
 
 //other
-int getInput(char *buffer){
+int getInput(char *buffer){      //reads the user input and returns the size of the user input
     memset(buffer, 0, strlen(buffer));
     fgets(buffer, BUFFER_SIZE, stdin);
             
@@ -123,4 +126,26 @@ int getInput(char *buffer){
     return strlen(buffer);
 
 }   
+
+void sends(int socket,char* buffer){
+    int size = strlen(buffer);
+    char sizes[5];
+    printf("%s and %d\n",buffer,size);
+    sprintf(sizes, "%d\n", size);  
+    write(socket,sizes,strlen(sizes));  
+}
+
+int recs(int socket){ //recieves the size of a message incoming to see how many times to read
+    char* buffer = malloc(BUFFER_SIZE);
+    char c;
+    int size;
+    while(c != '\n'){
+        read(socket,&c,1);
+        *buffer = c;
+        buffer+=1;        
+    }
+    size = atoi(buffer);
+    return size;
+}
+
 

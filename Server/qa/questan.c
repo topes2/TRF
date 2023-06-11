@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
+#include "../network/network.h"
 #include "questan.h"
 #include "../databases/db.h"
 
@@ -79,7 +80,8 @@ void return_question(int socket, GDBM_FILE db, char question[]){
         if(!strcmp(qc.dptr,question)){
             char *res = malloc(strlen("QUESTION ") + strlen(q.dptr) + strlen(": ") + strlen(qc.dptr) + strlen("\n") + 1);
             sprintf(res, "QUESTION %s: %s\n", q.dptr, qc.dptr);
-            write(socket, res, strlen(res));
+            writear(socket, res);
+            break;
         }
         qdb = gdbm_nextkey(db,q);
         q = qdb;
@@ -103,7 +105,7 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
         
         char *question = malloc(strlen(kq.dptr) + strlen(kqc.dptr) + 5);
         sprintf(question, "(%s) %s \n", kq.dptr, kqc.dptr);
-        write(socket, question, strlen(question));
+        writear(socket, question);
 
         ka = gdbm_firstkey(adb);
         while(ka.dptr){
@@ -128,7 +130,7 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
                 char *ans = malloc(strlen(token) + kac.dsize + 8);
                 sprintf(ans, "   (%s) %s\n", token, kac.dptr);
             
-                write(socket, ans, strlen(ans));                 
+                writear(socket, ans);                 
             }
             tk = gdbm_nextkey(adb, ka);
             ka = tk;

@@ -62,41 +62,37 @@ int readFromServer(int sockfd, char *buffer) {
     return 0;
 }
 
-/*
-int writear(int socket,char* buffer){
-    int size = strlen(buffer);
-    write()
-
-    
+int readar(int socket, char* buffer,int size){
+    memset(buffer, 0, BUFFER_SIZE);
+    char* pt = buffer;
+    while(strlen(buffer) <= size - 1){
+        read(socket,pt,MAX_MESSAGE_LENGTH);
+        pt += MAX_MESSAGE_LENGTH;
+    }
+    return strlen(buffer);    
 }
-*/
 
 
-/*
-void writear(int socket, char* buffer){
-    printf("Begin write!\n");
-    write(socket, READ_CODE, strlen(READ_CODE)); //Anounce to the server
-
-    int nBytes = strlen(buffer);
-    char nBytesString[22];
-
-    sprintf(nBytesString, "%d\n", nBytes);
-    write(socket, nBytesString, strlen(nBytesString));
-
-    if(nBytes <= MAX_MESSAGE_LENGTH){
-        write(socket, buffer, nBytes);
-    } else {
-        char *pt = buffer;
-        char *message = malloc(MAX_MESSAGE_LENGTH); 
-
-        while(nBytes > 0){
-            strncpy(message, pt, MAX_MESSAGE_LENGTH);
-            write(socket, message, strlen(message));
-            memset(message, 0, MAX_MESSAGE_LENGTH);
-            pt += MAX_MESSAGE_LENGTH - 1;        
+void writear(int socket,char* buffer){//versao 1.0
+    int size = strlen(buffer);
+    printf("size = %d",size);
+    if(size <= MAX_MESSAGE_LENGTH){
+        write(socket,buffer,size);
+    }else{
+        char* pt = buffer;
+        char tb[MAX_MESSAGE_LENGTH];
+        float parts = (float)size/MAX_MESSAGE_LENGTH;
+        while(parts>0){
+            printf("whiles %f\n",parts);
+            if(strlen(pt) >= MAX_MESSAGE_LENGTH){
+            memcpy(tb,pt,MAX_MESSAGE_LENGTH);
+            write(socket,tb,MAX_MESSAGE_LENGTH);
+            pt = pt+ MAX_MESSAGE_LENGTH;
+            }else{
+                memcpy(tb,pt,strlen(pt));
+                write(socket,tb,strlen(pt));
+            }
+            parts-=1;
         }
     }
-
-    printf("End write\n");
 }
-*/

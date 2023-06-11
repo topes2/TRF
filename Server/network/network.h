@@ -19,7 +19,10 @@ int acceptNewConnection(int serverSocket, client *clients, struct sockaddr_in *c
     //Select
 int prepareSelectServer(int serverSocket, client *clients, fd_set *readfds, int *maxSocket);
 
-int readar(int socket, char* buffer);
-void writear(int socket,char* message);
+int readar(int socket, char* buffer,int size);
+void writear(int socket,char* buffer);
 
+
+void sends(int socket,char* buffer); // send size
+int recs(int socket); //receive size
 #endif

@@ -12,7 +12,7 @@ bin/clientTCP.o: Client/clientTCP.c | bin configs.h Client/network/network.h Cli
 	gcc -c -o $@ $^
 
 	
-bin/cli/funcs.o: Client/funcs/funcs.c | bin/cli configs.h Client/funcs/funcs.h
+bin/cli/funcs.o: Client/funcs/funcs.c | bin/cli configs.h Client/funcs/funcs.h Client/network/network.h
 	gcc -c -o $@ $^
 bin/cli/network.o: Client/network/network.c | bin/cli configs.h Client/network/network.h
 	gcc -c -o $@ $^
@@ -23,7 +23,7 @@ bin/ser/network.o: Server/network/network.c | bin/ser configs.h Server/network/n
 	gcc -c -o $@ $^
 bin/ser/funcs.o: Server/funcs/funcs.c | bin/ser configs.h Server/funcs/funcs.h Server/databases/db.h
 	gcc -c -o $@ $^ 
-bin/ser/qa.o: Server/qa/questan.c | bin/ser Server/qa/questan.h Server/databases/db.h
+bin/ser/qa.o: Server/qa/questan.c | bin/ser Server/qa/questan.h Server/databases/db.h Server/network/network.h
 	gcc -c -o $@ $^
 bin/ser/files.o: Server/files/files.c | bin/ser Server/files/files.h configs.h Server/databases/db.h
 	gcc -c -o $@ $^ 

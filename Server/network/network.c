@@ -94,65 +94,66 @@ int acceptNewConnection(int serverSocket, client *clients, struct sockaddr_in *c
     return 0;
 }
 
-
-
-
-int readar(int socket, char* buffer){
-    
-}
-
-
-int writear(int socket,char* buffer){
-    int size = strlen()
+void sends(int socket,char* buffer){
+    int size = strlen(buffer);
+    char sizes[5];
+    sprintf(sizes, "%d\n", size);  
+    write(socket,sizes,strlen(sizes));  
 }
 
 
 
-
-
-
-
-
-/*
-int readar(int socket, char* buffer){
-    printf("Begin read!\n");
-
-    int nBytes;
-    char nBytesString[21];
+int recs(int socket){
+    char* buffer = malloc(BUFFER_SIZE);
+    char* pt = buffer;
     char c;
-
-
-    //read char by char until we find \n to end
-    int i = 0;
-    do{
-        read(socket, &c, 1);
-        nBytesString[i] = c;
-        i++;
-    } while(c != '\n');
-    nBytesString[i] = '\0';
-
-    if(sscanf(nBytesString, "%d", &nBytes) != 1){
-        return -1;
+    int size;
+    while(c != '\n'){
+        read(socket,&c,1);
+        printf("char: %c\n", c);
+        *pt = c;
+        pt++;  
     }
+    printf("\n");
+    size = atoi(buffer);
+    return size;
+}
 
+
+
+
+int readar(int socket, char* buffer,int size){
     memset(buffer, 0, BUFFER_SIZE);
+    char* pt = buffer;
+    printf("gay ffs\n");
+    while(strlen(buffer) <= size - 1){
+        printf("1\n");
+        read(socket,pt,MAX_MESSAGE_LENGTH);
+        pt += MAX_MESSAGE_LENGTH;
+    }
+    printf("gueee \n");
+    return strlen(buffer);    
+}
 
-    if(nBytes <= MAX_MESSAGE_LENGTH){
-        read(socket, buffer, MAX_MESSAGE_LENGTH);
-    } else {
-        char *pt = buffer;
-        char *message = malloc(MAX_MESSAGE_LENGTH);
 
-        while(nBytes > 0){
-            read(socket, message, MAX_MESSAGE_LENGTH);
-            strncpy(pt, message, MAX_MESSAGE_LENGTH);
-            memset(message, 0, MAX_MESSAGE_LENGTH);
-            pt += MAX_MESSAGE_LENGTH;
+void writear(int socket,char* buffer){//versao 1.0
+    int size = strlen(buffer);
+    if(size<MAX_MESSAGE_LENGTH){
+        write(socket,buffer,size);
+    }else{
+        char* pt = buffer;
+        char tb[MAX_MESSAGE_LENGTH];
+        float parts = size/MAX_MESSAGE_LENGTH;
+        while(parts>0){
+            if(strlen(pt) >= MAX_MESSAGE_LENGTH){
+            memcpy(tb,pt,MAX_MESSAGE_LENGTH);
+            write(socket,tb,MAX_MESSAGE_LENGTH);
+            pt = pt+ MAX_MESSAGE_LENGTH;
+            }else{
+                memcpy(tb,pt,strlen(pt));
+                write(socket,tb,strlen(pt));
+            }
+            parts-=1;
         }
     }
-    
-    
-    printf("End read!\n");
-    return 0;
 }
-*/

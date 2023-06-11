@@ -69,20 +69,16 @@ int kick(char string[], GDBM_FILE db){ //string == username string1 == password 
 
 int loginDB(char string[], char string1[], GDBM_FILE db){
     datum key, passkey, content;
-
     //Acess data in db
     key.dptr = string;
     key.dsize = strlen(key.dptr) + 1;
-
     if(gdbm_exists(db, key)){
         content = gdbm_fetch(db, key);
-
         if (!strcmp(content.dptr, string1)){
             return 0; //correct
         } else {
             return -1; //Wrong password
         }
-    } 
-    
+    }    
     return 1; //cant find
 }

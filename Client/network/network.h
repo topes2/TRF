@@ -9,7 +9,9 @@ struct sockaddr_in ServerSetup(struct sockaddr_in serv_addr, int port, struct ho
 int readFromServer(int sockfd, char *buffer);
 void Connect(int sockfd, struct sockaddr_in serv_addr);
 
-char* readar(int socket, char* buffer);
-int writear(int socket,char* message);
+int readar(int socket, char* buffer,int size);
+void writear(int socket,char* message);
+void sends(int socket,char* buffer);
+int recs(int socket);
 
 #endif

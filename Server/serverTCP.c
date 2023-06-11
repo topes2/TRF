@@ -26,8 +26,6 @@ int main(){
     int serverSocket, maxSocket, activity;
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_len;
-    char buffer[BUFFER_SIZE];
-    char bufferr[BUFFER_SIZE];
     fd_set readfds;
 
     //Client management
@@ -119,23 +117,28 @@ int main(){
         //chat
         for(int i = 0; i < MAX_CLIENTS; i++){
             if(FD_ISSET(clients[i].socket, &readfds)){
-                memset(buffer, 0, BUFFER_SIZE);
-                ssize_t len = read(clients[i].socket, buffer, MAX_MESSAGE_LENGTH);
-                //readar(client,bufferr);
-                printf("Server buffer: %s\n", buffer);
-
-                if(len <= 0){ //Client left
+                int bytes = recs(clients[i].socket);
+                char* bufferr = malloc(bytes);
+                memset(bufferr,0,bytes+1);
+                if(bytes <= 0){ //Client left
                     printf("%s left.\n", clients[i].userName);
                     close(clients[i].socket);
                     clients[i].socket = 0;
                     memset(clients[i].userName, 0, strlen(clients[i].userName));
-
-                } else if(!strcmp(bufferr, "exit")){ //End of server
-                    break;
-
-                } else if(!strncmp(bufferr, LOGIN_CODE, strlen(LOGIN_CODE))){ //Login
-                    int loginRes = login(clients[i].userName, buffer, dbLogin);
-                    
+                } 
+                if(bytes > MAX_MESSAGE_LENGTH){
+                    printf("tes3.1\n");
+                    readar(clients[i].socket, bufferr, bytes);
+                    printf("size of buffer: %d",strlen(bufferr));
+                    printf("Buffer = \n %s \n",bufferr);
+                    printf("tes3.2\n");
+                }else if(bytes <= MAX_MESSAGE_LENGTH){
+                    memset(bufferr, 0, bytes);
+                    read(clients[i].socket, bufferr, bytes);
+                }                
+                
+                if(!strncmp(bufferr, LOGIN_CODE, strlen(LOGIN_CODE))){ //Login
+                    int loginRes = login(clients[i].userName, bufferr, dbLogin);                   
                     if(loginRes == 0){ //loggin done
                         write(clients[i].socket, "0", strlen("0"));
                         //Attendance
@@ -144,11 +147,13 @@ int main(){
                         write(clients[i].socket, "1", strlen("1"));
                     }
                     
-                } else { //Isloggedin
+                    
+                } 
+                else { //Isloggedin
                     //readar
                     if(!strncmp(ASK_CODE, bufferr, strlen(ASK_CODE))){
                         printf("ASK - user: %s\n", clients[i].userName);
-                        char *token = strtok(buffer,":");
+                        char *token = strtok(bufferr,":");
                         token = strtok(NULL,":");    
                         if(!search_question(token, dbQ)){
                             add_question(token,dbQ);
@@ -171,14 +176,10 @@ int main(){
                         printf("user: %s uploaded a file\n", clients[i].userName);
 
                     }else {
-                        printf("else read");
-                        readar(clients[i].socket, buffer);
+                        printf("the ends \n");
                     }
                 } 
             }
-        }
-        if(!strcmp(buffer, "exit")){
-            break;
         }
     }
 

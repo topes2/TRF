@@ -27,15 +27,21 @@ int login(char *username, char *buffer, GDBM_FILE db){
     *points = '\0';
     strcpy(userName, buffer + codeLen);
 
+    printf("Username : %s\n pass: %s\n", userName, password);
+
     int res = loginDB(userName, password, db);//1 - cant find, -1 - wrong pass, 0 - login done
+    printf("result db: %d\n", res);
     if(res == -1){ //wrong password
+        printf("pass mal\n");
         return 1;
     } else if(res == 1){ //registo
+        printf("not found\n");
         if(regs(userName, password, db) != 0){
+            printf("error registo\n");
             return 1; //Error inserting
         }
     } 
-
+    printf("done\n");
     strcpy(username, userName);
     return 0; //login done
 }
@@ -49,7 +55,6 @@ void attendance(time_t start, GDBM_FILE db, char *username){
     int day = local_time->tm_mday;
     int month = local_time->tm_mon + 1;
     int year = local_time->tm_year + 1900;
-
     char *key = malloc(10 + strlen(username)); //10 because date and -
     sprintf(key, "%d/%d/%d-%s", day, month, year, username);
 

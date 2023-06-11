@@ -5,11 +5,12 @@
 
 
 //server
-#define PORT 5551
-#define BUFFER_SIZE 1024//modificar talvez
+#define PORT 5557
+#define BUFFER_SIZE 50000
 #define MAX_MESSAGE_LENGTH 1024
 #define MAX_CLIENTS 100
 #define READ_CODE "%&/(#)"
+#define ACK "&%#/&"
 
 //Q&A
 #define MAX_ANSWER 100

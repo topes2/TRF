@@ -20,8 +20,7 @@ int main(){
     fd_set readfds;
     int max_fd;
 
-    int doingstuff = 0;
-    int loggedin = 0, firstmsg = 1; //0 - false, 1 - true
+    int loggedin = 0; //0 - false, 1 - true
 
     //Functions to connect to the server
     sockfd = Socket();
@@ -29,42 +28,45 @@ int main(){
     serv_addr = ServerSetup(serv_addr, PORT, server);
     Connect(sockfd, serv_addr);
 
-    readFromServer(sockfd, buffer);
+    readFromServer(sockfd, buffer); //handles the first "Wellcome" message from the server
     //loop
     while(1){
         //Interaction
-        int size = getInput(buffer);
-
-        if(!loggedin){ 
-            char *loginCommand = formatingLogin(buffer);
-           if(loginCommand == NULL){
+        getInput(buffer); //get the user input and return the size of it, save it on a buffer
+        
+        if(!loggedin){  //checks if its already logged in
+            char *loginCommand = formatingLogin(buffer);         
+           if(loginCommand == NULL){ //check if the command given was login or not
                 printf("Invalid login command\n");
             } else {
-                loggedin = login(sockfd, buffer, loginCommand);
+                sends(sockfd, loginCommand); // send the size to check with the max allowed size of transfers
+                printf("loggind commandsa: %s\n", loginCommand);
+                loggedin = login(sockfd, buffer, loginCommand); //sends the login command to the server
+                printf("login\n");
             }
-        } else { //its already logged in
-            char *res = formatingQ_A(buffer);
+
+        } else { 
+            printf("chegou \n");
+            
+            //its already logged in
+            char *res = formating(buffer);
             if (res != NULL){
-                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE))){
-                    QandA(sockfd, buffer, res,size);
-                }else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE))){
+                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE))){//these commands all share a function so they are grouped up
+                    QandA(sockfd, buffer, res);
+                }else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE))){// these commands all share functions so they are grouped up
+
+
+
+
+
                     //to be made by the one the only the magestic rui
-                }else if(!strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE)) || !strncmp(LISTFILES_CODE, res, strlen(LISTFILES_CODE)) ||!strncmp(GETFILES_CODE, res, strlen(GETFILES_CODE))){
+                }else if(!strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE)) || !strncmp(LISTFILES_CODE, res, strlen(LISTFILES_CODE)) ||!strncmp(GETFILES_CODE, res, strlen(GETFILES_CODE))){ //the size of the message being sent is never going to be more than 25
                     write(sockfd,res,strlen(res));
                 }
 
-
-
-
-
-                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE))){
-                    QandA(sockfd, buffer, res);
-                } else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE)) ){
-                    write(sockfd, res, strlen(res));
-                } 
             } else {
                 //printf("Invalid Command\n");
-                printf("else\n");
+                sends(sockfd,buffer);
                 writear(sockfd, buffer);
             }
         } 
