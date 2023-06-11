@@ -80,7 +80,7 @@ void return_question(int socket, GDBM_FILE db, char question[]){
         if(!strcmp(qc.dptr,question)){
             char *res = malloc(strlen("QUESTION ") + strlen(q.dptr) + strlen(": ") + strlen(qc.dptr) + strlen("\n") + 1);
             sprintf(res, "QUESTION %s: %s\n", q.dptr, qc.dptr);
-            printf("size res %d",strlen(res));
+            printf("size res %ld",strlen(res));
             sends(socket,res);
             writear(socket, res);
             printf("sent\n");

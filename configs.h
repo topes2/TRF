@@ -24,6 +24,7 @@
 #define PUTFILES_CODE "#!%#!"
 #define LISTFILES_CODE "^%!&#"
 #define GETFILES_CODE "$*&!@"
+#define ENDFILES "ENDFILES\n"
 
 //users
 #define MAX_USERNAME_LENGTH 10

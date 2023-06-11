@@ -46,7 +46,7 @@ int putfile(char *buffer, GDBM_FILE db){
 
     //add name to data base
     char *nBooksString;
-    sprintf(nBooksString, "%d\0", nBooks);
+    sprintf(nBooksString, "%d", nBooks);
 
     key.dptr = nBooksString;
     key.dsize = strlen(nBooksString);
@@ -59,6 +59,7 @@ int putfile(char *buffer, GDBM_FILE db){
         return -1;
     }
 
+    //write for client UPLOADED file !!!!!!!!!!!!!!!!!!!
     return 0;
 }
 

@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "../funcs/funcs.h"
+#include <ctype.h>
 
+#include "../funcs/funcs.h"
 #include "../../configs.h"
 #include "funcs.h"
 
@@ -47,7 +48,7 @@ char* formating(char *buffer){// switch to switch case if we have time
         
         return res;
 
-    } else if(!strncmp("LISTQUESTIONS", buffer, strlen("LISTQUESTIONS"))){
+    } else if(!strcmp("LISTQUESTIONS", buffer)){
         return LISTQUESTIONS_CODE;
 
     }
@@ -65,6 +66,31 @@ char* formating(char *buffer){// switch to switch case if we have time
         sprintf(res, "%s:%s:%d", PUTFILES_CODE, fileName, nBytes);
 
         return res;    
+    } else if (!strcmp("LISTFILES", buffer)){
+        return LISTFILES_CODE;
+
+    } else if(!strncmp("GETFILE ", buffer, strlen("GETFILE "))){
+        int nFile;
+
+        char *pt = buffer + strlen("GETFILE ");
+
+        while(*pt != '\0'){
+            if(!isdigit(*pt)){
+                return NULL;
+            }
+            pt++;
+        }
+
+        //get the number
+        if(sscanf(buffer + strlen("GETFILE "), "%d", &nFile) != 1){
+            return NULL;
+        }
+
+        char *res = malloc(strlen(GETFILES_CODE) + 12); //\0, ':' and 10 digits max
+        sprintf(res, "%s:%d", GETFILES_CODE, nFile);
+
+        printf("code: %s\n", res);
+        return res;
     }
 
     return NULL;
