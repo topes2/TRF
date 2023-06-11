@@ -47,17 +47,12 @@ int main(){
             //its already logged in
             char *res = formating(buffer);
             if (res != NULL){
-                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE))){//these commands all share a function so they are grouped up
+                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE))){//these commands all share a function so they are grouped up
                     QandA(sockfd, buffer, res);
                 }else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE))){// these commands all share functions so they are grouped up
-
-
-
-
-
-                    //to be made by the one the only the magestic rui
-                }else if(!strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE)) || !strncmp(LISTFILES_CODE, res, strlen(LISTFILES_CODE)) ||!strncmp(GETFILES_CODE, res, strlen(GETFILES_CODE))){ //the size of the message being sent is never going to be more than 25
-                    write(sockfd,res,strlen(res));
+                    //files
+                }else{ //the size of the message being sent is never going to be more than 25
+                    printf("else else\n");
                 }
 
             } else {

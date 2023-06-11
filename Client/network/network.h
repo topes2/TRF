@@ -11,7 +11,7 @@ void Connect(int sockfd, struct sockaddr_in serv_addr);
 
 int readar(int socket, char* buffer,int size);
 void writear(int socket,char* message);
-void sends(int socket,char* buffer);
-int recs(int socket);
+
+int min(int a, int b);
 
 #endif

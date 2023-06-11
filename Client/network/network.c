@@ -65,20 +65,24 @@ int readFromServer(int sockfd, char *buffer) {
 int readar(int socket, char* buffer,int size){
     memset(buffer, 0, BUFFER_SIZE);
     char* pt = buffer;
-    printf("gay ffs\n");
     while(strlen(buffer) <= size ){
-        printf("weeeee \n");
         read(socket,pt,MAX_MESSAGE_LENGTH);
         pt += MAX_MESSAGE_LENGTH;
     }
-    printf("gueee \n");
+
     return strlen(buffer);    
+}
+
+int min(int a, int b){
+    if(a < b){
+        return a;
+    }
+    return b;
 }
 
 
 void writear(int socket,char* buffer){//versao 1.0
     int size = strlen(buffer);
-    printf("size = %d",size);
     if(size <= MAX_MESSAGE_LENGTH){
         write(socket,buffer,size);
     }else{
@@ -86,7 +90,6 @@ void writear(int socket,char* buffer){//versao 1.0
         char tb[MAX_MESSAGE_LENGTH];
         float parts = (float)size/MAX_MESSAGE_LENGTH;
         while(parts>0){
-            printf("whiles %f\n",parts);
             if(strlen(pt) >= MAX_MESSAGE_LENGTH){
             memcpy(tb,pt,MAX_MESSAGE_LENGTH);
             write(socket,tb,MAX_MESSAGE_LENGTH);

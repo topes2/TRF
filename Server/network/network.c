@@ -108,8 +108,12 @@ int recs(int socket){
     char* pt = buffer;
     char c;
     int size;
+    int r;
     while(c != '\n'){
-        read(socket,&c,1);
+        r = read(socket,&c,1);
+        if(r <= 0){
+            return 0;
+        }
         printf("char: %c\n", c);
         *pt = c;
         pt++;  
@@ -137,6 +141,7 @@ int readar(int socket, char* buffer,int size){
 
 
 void writear(int socket,char* buffer){//versao 1.0
+    printf("sent: %s", buffer);
     int size = strlen(buffer);
     if(size<MAX_MESSAGE_LENGTH){
         write(socket,buffer,size);

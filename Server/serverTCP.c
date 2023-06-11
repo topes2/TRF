@@ -119,13 +119,16 @@ int main(){
             if(FD_ISSET(clients[i].socket, &readfds)){
                 int bytes = recs(clients[i].socket);
                 char* bufferr = malloc(bytes);
-                memset(bufferr,0,bytes+1);
+                memset(bufferr, 0, bytes+1);
+
                 if(bytes <= 0){ //Client left
                     printf("%s left.\n", clients[i].userName);
                     close(clients[i].socket);
                     clients[i].socket = 0;
                     memset(clients[i].userName, 0, strlen(clients[i].userName));
-                } 
+                    break;
+                }
+
                 if(bytes > MAX_MESSAGE_LENGTH){
                     readar(clients[i].socket, bufferr, bytes);
                 }else if(bytes <= MAX_MESSAGE_LENGTH){
@@ -142,7 +145,6 @@ int main(){
                     } else { //error
                         write(clients[i].socket, "1", strlen("1"));
                     }
-                    
                     
                 } 
                 else { //Isloggedin
