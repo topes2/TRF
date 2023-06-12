@@ -53,6 +53,8 @@ char* formating(char *buffer){ // switch to switch case if we have time
 
     }
 
+    
+
     if(!strncmp("PUTFILE ", buffer, strlen("PUTFILE "))){
         char *fileName = malloc(strlen(buffer) - strlen("PUTFILE ") + 1);
         int nBytes;
@@ -128,14 +130,71 @@ void QandA(int sockfd, char *buffer, char *res){
         readar(sockfd, buffer, rec);
         printf("%s", buffer);
     } else if(!strcmp(res, LISTQUESTIONS_CODE)){
-        do{
-            memset(buffer, 0, BUFFER_SIZE);
-            rec = recs(sockfd);
-            readar(sockfd, buffer, rec);
-           
-            printf("%s", buffer);
-            
-        } while(strstr(buffer, ENDQUESTIONS) == NULL);
+        rec = recs(sockfd);
+        readar(sockfd, buffer, rec);
+
+        printf("%s", buffer);
+       
+    }
+}
+
+void files(int sockfd, char *buffer, char *res){
+    sends(sockfd, res);
+    writear(sockfd, res);
+
+    int rec;
+
+    if(!strncmp(res, PUTFILES_CODE, strlen(PUTFILES_CODE))){
+        rec = recs(sockfd);
+        readar(sockfd, buffer, rec);
+
+        if(!strcmp(buffer, "1")){
+            printf("Error, file is already in server\n");
+        } else {
+            printf("done\n");
+        }
+
+        //getInput(buffer);
+
+        //check if all bytes are right
+        int bytesWrite;
+        char *pt = strchr(res + strlen(PUTFILES_CODE) + 1, ':') + 1;
+
+        /*
+        printf("pt: %s\n", pt);
+        if(sscanf(pt, "%d", &bytesWrite) != 1){
+            printf("someting went wrong\n");
+            sends(sockfd, "1");
+            writear(sockfd, "1");
+            return;
+        }
+
+        if(strlen(buffer) != bytesWrite){
+            printf("bytes dont match!\n");
+            sends(sockfd, "1");
+            writear(sockfd, "1");
+            return;
+        }
+        
+
+        sends(sockfd, "0");
+        writear(sockfd, "0");
+        */
+
+        //write buffer
+        //sends(sockfd, buffer);
+        //writear(sockfd, buffer);
+
+        //read server response
+
+    } else if(!strncmp(res, LISTFILES_CODE, strlen(LISTFILES_CODE))){
+        int bytes = recs(sockfd);
+        readar(sockfd, buffer, bytes);
+        printf("%s", buffer);
+        return;
+        
+    } else if(!strncmp(res, GETFILES_CODE, strlen(GETFILES_CODE))){
+        
     }
 }
 

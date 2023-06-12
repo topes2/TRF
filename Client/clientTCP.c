@@ -49,10 +49,13 @@ int main(){
             if (res != NULL){
                 if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE))){//these commands all share a function so they are grouped up
                     QandA(sockfd, buffer, res);
+
                 }else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE))){// these commands all share functions so they are grouped up
-                    //files
+                    files(sockfd, buffer, res);
+
                 }else{ //the size of the message being sent is never going to be more than 25
                     printf("else else\n");
+                    
                 }
 
             } else {

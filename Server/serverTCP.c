@@ -154,13 +154,10 @@ int main(){
                         token = strtok(NULL,":");    
                         if(!search_question(token, dbQ)){
                             add_question(token,dbQ);
-                            printf("add question\n");
                             return_question(clients[i].socket, dbQ, token);
                         } else {
                             return_question(clients[i].socket, dbQ, token);
                         }
-                        printf("ASK - user: %s\n", clients[i].userName);
-
                     } else if(!strncmp(ANSWER_CODE, bufferr, strlen(ANSWER_CODE))){
                         char *token = strstr(bufferr, ":") + 1;
                         add_answer(token, clients[i].userName, dbA, clients[i].socket);
@@ -171,8 +168,8 @@ int main(){
                         printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
                         
                     } else if(!strncmp(PUTFILES_CODE, bufferr, strlen(PUTFILES_CODE))){
-                        putfile(bufferr, dbFiles);
-                        printf("user: %s uploaded a file\n", clients[i].userName);
+                        putfile(clients[i].socket, bufferr, dbFiles);
+                        printf("PUTFILE - user: %s\n", clients[i].userName);
 
                     }else {
                         printf("the ends \n");

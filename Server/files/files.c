@@ -4,28 +4,36 @@
 #include <unistd.h>
 #include <gdbm.h>
 
-int putfile(char *buffer, GDBM_FILE db){
+#include "../network/network.h"
+
+int putfile(int socket, char *buffer, GDBM_FILE db){
+    printf("putfiles, buffer: %s\n", buffer);
     char *fileName = strchr(buffer, ':') + 1;
     char *pt = fileName;
     char *bytes = strchr(pt, ':');
     *bytes = '\0';
     bytes++;
-    
-    char *path = malloc(strlen("FilesUploaded/") + strlen(fileName));
-    sprintf(path, "FilesUploaded/%s", fileName);
 
     //see if the file already exists
     datum key, content;
 
     key = gdbm_firstkey(db);
 
-
     int nBooks = 0;
+    
+    //key = num file / content = filename bytes
     while(key.dptr){
         content = gdbm_fetch(db, key);
 
-        if(!strcmp(content.dptr, fileName)){
+        char *copy = malloc(strlen(content.dptr));
+        sscanf(content.dptr, "%s ", copy);
+
+
+        if(content.dptr && !strcmp(copy, fileName)){
             //book already in data base
+            sends(socket, "1");
+            writear(socket, "1");
+
             return 1;
         }
 
@@ -34,25 +42,35 @@ int putfile(char *buffer, GDBM_FILE db){
         key = nextkey;
         nBooks++;
     }
-
+    
     //book doesnt exist in data base
 
+    //send message to client
+    sends(socket, "0");
+    writear(socket, "0");
+
+    //create new file
+    char *path = malloc(strlen("FilesUploaded/") + strlen(fileName) + 1);
+    sprintf(path, "FilesUploaded/%s", fileName);
+
     FILE *f = fopen(path, "w");
-    
-    //client sends stuff
 
 
     fclose(f);
 
     //add name to data base
-    char *nBooksString;
+    char *nBooksString = malloc(20);
     sprintf(nBooksString, "%d", nBooks);
 
     key.dptr = nBooksString;
     key.dsize = strlen(nBooksString);
 
-    content.dptr = fileName;
-    content.dsize = strlen(fileName);
+    char *dbCont = malloc(strlen(fileName) + 12);
+    sprintf(dbCont, "%s %s", fileName, bytes);
+    
+
+    content.dptr = dbCont;
+    content.dsize = strlen(dbCont);
 
     if(gdbm_store(db, key, content, GDBM_INSERT) != 0){
         printf("File already existed in data base\n");

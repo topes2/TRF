@@ -25,7 +25,7 @@ bin/ser/funcs.o: Server/funcs/funcs.c | bin/ser configs.h Server/funcs/funcs.h S
 	gcc -c -o $@ $^ 
 bin/ser/qa.o: Server/qa/questan.c | bin/ser Server/qa/questan.h Server/databases/db.h Server/network/network.h
 	gcc -c -o $@ $^
-bin/ser/files.o: Server/files/files.c | bin/ser Server/files/files.h configs.h Server/databases/db.h
+bin/ser/files.o: Server/files/files.c | bin/ser Server/files/files.h configs.h Server/databases/db.h Server/network/network.h
 	gcc -c -o $@ $^ 
 
 

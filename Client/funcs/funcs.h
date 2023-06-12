@@ -6,6 +6,7 @@ char* formating(char *buffer);
 
 int login(int sockfd, char *buffer, char *loginCommand);
 void QandA(int sockfd, char *buffer, char *res);
+void files(int sockfd, char *buffer, char *res);
 
 int getInput(char *buffer);
 

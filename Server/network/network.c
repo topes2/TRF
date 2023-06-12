@@ -114,11 +114,9 @@ int recs(int socket){
         if(r <= 0){
             return 0;
         }
-        printf("char: %c\n", c);
         *pt = c;
         pt++;  
     }
-    printf("\n");
     size = atoi(buffer);
     return size;
 }
@@ -129,19 +127,15 @@ int recs(int socket){
 int readar(int socket, char* buffer,int size){
     memset(buffer, 0, BUFFER_SIZE);
     char* pt = buffer;
-    printf("gay ffs\n");
     while(strlen(buffer) <= size - 1){
-        printf("1\n");
         read(socket,pt,MAX_MESSAGE_LENGTH);
         pt += MAX_MESSAGE_LENGTH;
     }
-    printf("gueee \n");
     return strlen(buffer);    
 }
 
 
 void writear(int socket,char* buffer){//versao 1.0
-    printf("sent: %s", buffer);
     int size = strlen(buffer);
     if(size<MAX_MESSAGE_LENGTH){
         write(socket,buffer,size);

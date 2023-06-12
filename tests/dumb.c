@@ -13,28 +13,42 @@ void main(){
 }
 
 
-/*
+
 void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
     datum ka,kac;
     datum kq,kqc;
     datum tk;
     int counter = 0,cq,ca;
-    gdbm_count(qdb,cq);
-    gdbm_count(adb,ca);
+    gdbm_count(qdb,&cq);// the amount of entries in the questions data base
+    gdbm_count(adb,&ca);// the amount of entries in the answers data base
+    int ct = cq+ca; //count total
     kq = gdbm_firstkey(qdb);
-    char* buffer = malloc((cq+cq)*strlen(kq.dptr) + strlen("   NOT ANSWERED"));
+    int min_size = (strlen(kq.dptr) + strlen("   NOT ANSWERED"));
+    char* buffer_l = malloc((ct)*min_size);
 
     while(kq.dptr){
-        kqc = gdbm_fetch(qdb, kq); 
+        kqc = gdbm_fetch(qdb, kq);
 
         if(!kqc.dptr){
             break;
-        }
-        
+        } 
+
         char *question = malloc(strlen(kq.dptr) + strlen(kqc.dptr) + 5);
         sprintf(question, "(%s) %s \n", kq.dptr, kqc.dptr);
-        sends(socket,question);
-        writear(socket, question);
+
+
+        if((strlen(question) > min_size)){ //making the buffer bigger if the question is bigger than the min value
+            min_size = ct*strlen(question);
+            char* buffer2 = malloc(ct*min_size);
+            strncpy(buffer2,buffer1,strlen(buffer1));
+            free(buffer1);
+            buffer1 = buffer2;            
+        } 
+        strncpy(buffer2,question,strlen(question));
+
+        if(!kqc.dptr){
+            break;
+        }        
 
         ka = gdbm_firstkey(adb);
         while(ka.dptr){
@@ -58,8 +72,16 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
                 
                 char *ans = malloc(strlen(token) + kac.dsize + 8);
                 sprintf(ans, "   (%s) %s\n", token, kac.dptr);
-                sends(socket, ans);
-                writear(socket, ans);                 
+
+                if((strlen(ans) > min_size)){ //making the buffer bigger if the answer is bigger than the min value
+                    min_size = ct*strlen(ans);
+                    char* buffer2 = malloc(ct*min_size);
+                    strncpy(buffer2,buffer1,strlen(buffer1));
+                    free(buffer1);
+                    buffer1 = buffer2;            
+                }
+                strncpy(buffer2,ans,strlen(ans));
+
             }
             tk = gdbm_nextkey(adb, ka);
             ka = tk;
@@ -68,15 +90,13 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
         }
 
         if(counter == 0){
-            sends(socket,"   NOT ANSWERED\n");
-            writear(socket,"   NOT ANSWERED\n");
+            strncpy(buffer2,"   NOT ANSWERED\n",strlen("   NOT ANSWERED\n"));
         }
 
         counter = 0;
         tk = gdbm_nextkey(qdb,kq);
         kq = tk;        
     }
-    sends(socket,ENDQUESTIONS);
-    writear(socket, ENDQUESTIONS);
+    sends(socket,buffer1);
+    writear(socket, buffer1);
 }
-*/
