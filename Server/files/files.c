@@ -49,17 +49,28 @@ int putfile(int socket, char *buffer, GDBM_FILE db){
     sends(socket, "0");
     writear(socket, "0");
 
+    //see if the user has input done
+    int bytesRead = recs(socket);
+    readar(socket, buffer, bytesRead);
+    
+    if(strcmp(buffer, "1")){
+        return -1;
+    }
+
+    bytesRead = recs(socket);
+    readar(socket, buffer, bytesRead);
+    printf("buffer: %s\n", buffer);
+
     //create new file
     char *path = malloc(strlen("FilesUploaded/") + strlen(fileName) + 1);
     sprintf(path, "FilesUploaded/%s", fileName);
 
     FILE *f = fopen(path, "w");
 
-
     fclose(f);
 
     //add name to data base
-    char *nBooksString = malloc(20);
+    char *nBooksString = malloc(21);
     sprintf(nBooksString, "%d", nBooks);
 
     key.dptr = nBooksString;

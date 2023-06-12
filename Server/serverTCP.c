@@ -19,7 +19,6 @@
 #include "funcs/funcs.h"
 #include "qa/questan.h"
 #include "files/files.h"
-//#include "files/files.h"
 
 
 int main(){
@@ -118,8 +117,8 @@ int main(){
         for(int i = 0; i < MAX_CLIENTS; i++){
             if(FD_ISSET(clients[i].socket, &readfds)){
                 int bytes = recs(clients[i].socket);
-                char* bufferr = malloc(bytes);
-                memset(bufferr, 0, bytes+1);
+                char* buffer = malloc(bytes);
+                memset(buffer, 0, bytes+1);
 
                 if(bytes <= 0){ //Client left
                     printf("%s left.\n", clients[i].userName);
@@ -130,14 +129,14 @@ int main(){
                 }
 
                 if(bytes > MAX_MESSAGE_LENGTH){
-                    readar(clients[i].socket, bufferr, bytes);
+                    readar(clients[i].socket, buffer, bytes);
                 }else if(bytes <= MAX_MESSAGE_LENGTH){
-                    memset(bufferr, 0, bytes);
-                    read(clients[i].socket, bufferr, bytes);
+                    memset(buffer, 0, bytes);
+                    read(clients[i].socket, buffer, bytes);
                 }                
                 
-                if(!strncmp(bufferr, LOGIN_CODE, strlen(LOGIN_CODE))){ //Login
-                    int loginRes = login(clients[i].userName, bufferr, dbLogin);                   
+                if(!strncmp(buffer, LOGIN_CODE, strlen(LOGIN_CODE))){ //Login
+                    int loginRes = login(clients[i].userName, buffer, dbLogin);                   
                     if(loginRes == 0){ //loggin done
                         write(clients[i].socket, "0", strlen("0"));
                         //Attendance
@@ -149,8 +148,8 @@ int main(){
                 } 
                 else { //Isloggedin
                     //readar
-                    if(!strncmp(ASK_CODE, bufferr, strlen(ASK_CODE))){
-                        char *token = strtok(bufferr,":");
+                    if(!strncmp(ASK_CODE, buffer, strlen(ASK_CODE))){
+                        char *token = strtok(buffer,":");
                         token = strtok(NULL,":");    
                         if(!search_question(token, dbQ)){
                             add_question(token,dbQ);
@@ -158,21 +157,36 @@ int main(){
                         } else {
                             return_question(clients[i].socket, dbQ, token);
                         }
-                    } else if(!strncmp(ANSWER_CODE, bufferr, strlen(ANSWER_CODE))){
-                        char *token = strstr(bufferr, ":") + 1;
+                    } else if(!strncmp(ANSWER_CODE, buffer, strlen(ANSWER_CODE))){
+                        char *token = strstr(buffer, ":") + 1;
                         add_answer(token, clients[i].userName, dbA, clients[i].socket);
                         printf("ANSWER - user: %s\n", clients[i].userName);
 
-                    } else if(!strncmp(LISTQUESTIONS_CODE, bufferr, strlen(LISTQUESTIONS_CODE))){
+                    } else if(!strncmp(LISTQUESTIONS_CODE, buffer, strlen(LISTQUESTIONS_CODE))){
                         list_questions(clients[i].socket, dbQ, dbA);
                         printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
                         
-                    } else if(!strncmp(PUTFILES_CODE, bufferr, strlen(PUTFILES_CODE))){
-                        putfile(clients[i].socket, bufferr, dbFiles);
+                    }else if(!strncmp(REMOVE_ENTRY,buffer, strlen(REMOVE_ENTRY))){
+                        //kick()                   
+                    
+                    } else if(!strncmp(PUTFILES_CODE, buffer, strlen(PUTFILES_CODE))){
+                        putfile(clients[i].socket, buffer, dbFiles);
                         printf("PUTFILE - user: %s\n", clients[i].userName);
 
-                    }else {
-                        printf("the ends \n");
+                    }else if (!strcmp(CLOSE_CODE, buffer)){ //closing 
+                        printf("Closing server...\n");
+
+                        //sockets
+                        for(int i = 0; i < MAX_CLIENTS; i++){
+                            if(clients[i].socket > 0){
+                                close(clients[i].socket);
+                            }
+                        }
+
+                        //others
+                        close(serverSocket);
+
+                        return 0;
                     }
                 } 
             }

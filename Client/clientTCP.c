@@ -31,7 +31,7 @@ int main(){
     readFromServer(sockfd, buffer); //handles the first "Wellcome" message from the server
     //loop
     while(1){
-        //Interaction
+        //Interaction with the server
         getInput(buffer); //get the user input and return the size of it, save it on a buffer
         
         if(!loggedin){  //checks if its already logged in
@@ -53,15 +53,18 @@ int main(){
                 }else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE))){// these commands all share functions so they are grouped up
                     files(sockfd, buffer, res);
 
-                }else{ //the size of the message being sent is never going to be more than 25
-                    printf("else else\n");
-                    
+                } else if(!strcmp(CLOSE_CODE, res)){
+                    //send message
+                    sends(sockfd, res);
+                    writear(sockfd, res);
+
+                    //Close
+                    close(sockfd);
+                    return 0;
                 }
 
             } else {
                 printf("Invalid Command\n");
-                //sends(sockfd,buffer);
-                //writear(sockfd, buffer);
             }
         } 
     }

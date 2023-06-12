@@ -5,12 +5,13 @@
 
 
 //server
-#define PORT 5553
-#define BUFFER_SIZE 50000
+#define PORT 5555
+#define BUFFER_SIZE 5000
 #define MAX_MESSAGE_LENGTH 1024
 #define MAX_CLIENTS 100
 #define READ_CODE "%&/(#)"
 #define ACK "&%#/&"
+#define CLOSE_CODE "!@#$%^&*(#$%)"
 
 //Q&A
 #define MAX_ANSWER 100
@@ -18,7 +19,7 @@
 #define ASK_CODE "&@%$@"
 #define ANSWER_CODE "@$^@^"
 #define LISTQUESTIONS_CODE "$^&%@"
-#define ENDQUESTIONS "ENDQUESTIONS\n"
+#define REMOVE_ENTRY ")&)&%#/)(&$#"
 
 //files
 #define PUTFILES_CODE "#!%#!"
@@ -38,5 +39,4 @@
 //Attendance
 #define LATE_TIME 1200
 #define ABSENT_TIME 2700
-
 #endif 

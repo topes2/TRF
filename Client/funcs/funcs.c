@@ -51,6 +51,14 @@ char* formating(char *buffer){ // switch to switch case if we have time
     } else if(!strcmp("LISTQUESTIONS", buffer)){
         return LISTQUESTIONS_CODE;
 
+    } else if(!strncmp("REMOVE ", buffer, strlen("REMOVE "))){
+        char *res = malloc(strlen(buffer + strlen("REMOVE ")));
+
+        char *username = malloc(strlen(buffer + strlen("REMOVE ")));
+        username = buffer + strlen("REMOVE ");
+        printf("Username: %s\n", username);
+        //sprintf(res, "%s:%s:%s", REMOVE_ENTRY, nQuestion, username);
+        //printf("res: %s\n", res);
     }
 
     
@@ -94,6 +102,10 @@ char* formating(char *buffer){ // switch to switch case if we have time
         return res;
     }
 
+    if(!strncmp("SHUTDOWN", buffer, strlen("SHUTDOWN"))){ //command to shutdown server
+        return CLOSE_CODE;
+    }
+
     return NULL;
 }
 
@@ -133,7 +145,7 @@ void QandA(int sockfd, char *buffer, char *res){
         rec = recs(sockfd);
         readar(sockfd, buffer, rec);
 
-        printf("%s", buffer);
+        printf("%s\nENDQUESTIONS\n", buffer);
        
     }
 }
@@ -148,44 +160,38 @@ void files(int sockfd, char *buffer, char *res){
         rec = recs(sockfd);
         readar(sockfd, buffer, rec);
 
+        
+
         if(!strcmp(buffer, "1")){
             printf("Error, file is already in server\n");
-        } else {
-            printf("done\n");
-        }
-
-        //getInput(buffer);
+        } 
+        int size = getInput(buffer);
 
         //check if all bytes are right
         int bytesWrite;
         char *pt = strchr(res + strlen(PUTFILES_CODE) + 1, ':') + 1;
 
-        /*
-        printf("pt: %s\n", pt);
         if(sscanf(pt, "%d", &bytesWrite) != 1){
-            printf("someting went wrong\n");
+            printf("Conversion error, please try again\n");
             sends(sockfd, "1");
             writear(sockfd, "1");
             return;
         }
 
-        if(strlen(buffer) != bytesWrite){
-            printf("bytes dont match!\n");
+        if(bytesWrite != size){
+            printf("Error, bytes dont match!\n");
             sends(sockfd, "1");
             writear(sockfd, "1");
             return;
         }
-        
 
         sends(sockfd, "0");
         writear(sockfd, "0");
-        */
 
-        //write buffer
-        //sends(sockfd, buffer);
-        //writear(sockfd, buffer);
-
-        //read server response
+        //send information
+        sends(sockfd, buffer);
+        writear(sockfd, buffer);
+       
 
     } else if(!strncmp(res, LISTFILES_CODE, strlen(LISTFILES_CODE))){
         int bytes = recs(sockfd);
@@ -208,8 +214,8 @@ int getInput(char *buffer){      //reads the user input and returns the size of 
     if(fgetsEnd != NULL){
         *fgetsEnd = '\0';
     }
-    return strlen(buffer);
 
+    return strlen(buffer);
 }   
 
 void sends(int socket,char* buffer){

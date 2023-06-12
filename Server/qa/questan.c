@@ -12,42 +12,43 @@
 
 void add_question(char question[],GDBM_FILE db){ // adding the question to the data base
     datum q,q1;
-    char counters[5];
-    int counter = 1;
-    q = gdbm_firstkey(db);
-    while(q.dptr != NULL){
+    char counters[5]; //to save the counter in string form
+    int counter = 1;//counter to add with the question
+    q = gdbm_firstkey(db); //getting the first key from the data base
+    while(q.dptr != NULL){//run trought the data base to know how many questions exist
         counter++;
         q1 = gdbm_nextkey(db,q);
         q = q1;
     }
-    sprintf(counters, "%d", counter);
-    regs(counters,question,db);
+    sprintf(counters, "%d", counter); //format the  string to add to the data base
+    regs(counters,question,db); //add string to data base
 }
 
-int search_question(char question[], GDBM_FILE db){ //verifica se existe na base de dados
-    datum q,q1;
+int search_question(char question[], GDBM_FILE db){ //search the data base to check if the question exists
+    datum q,q1; 
     datum qdb;
     char *token;
-    q = gdbm_firstkey(db);
+    q = gdbm_firstkey(db); //getting the first key in the data base
     while(q.dptr){
-        qdb = gdbm_fetch(db,q);
-        if(!strcmp(qdb.dptr,question)){
+        qdb = gdbm_fetch(db,q); //getting the content of given key
+        if(!strcmp(qdb.dptr,question)){ //comparing whats in the data base and what the we are searching
             return 1;
         }
-        q1 = gdbm_nextkey(db,q);
+        q1 = gdbm_nextkey(db,q); //getting the next key
         q = q1;
     }
     return 0;
 }
 
-void add_answer(char *answer, char *userid, GDBM_FILE db, int socket){ // adding the user provided answer to the data base
-    char *token = strtok(answer,":");
+void add_answer(char *answer, char *userid, GDBM_FILE db, int socket){ // adding the user provided answer to the given data base
+    char *token = strtok(answer,":"); //split the answer being the format NUMBER:ANSWER
     
     //n Question
-    char aid[strlen(token)];
-    strcpy(aid, token);
-
-    token = strtok(NULL,":");
+    char question_number[strlen(token)]; //get the question from the token
+    strcpy(question_number, token);
+    printf("token = %s \n",token);
+    
+    token = strtok(NULL,":");//move the token foward
 
     char *id = malloc(strlen(token) + strlen(userid) + 2);
     sprintf(id, "%s:%s", answer, userid);
@@ -56,8 +57,8 @@ void add_answer(char *answer, char *userid, GDBM_FILE db, int socket){ // adding
         replace_value(id, token, db);
     }
 
-    char *res = malloc(strlen("REGISTERED ") + strlen(aid) + 1);
-    sprintf(res, "REGISTERED %s\n", aid);
+    char *res = malloc(strlen("REGISTERED ") + strlen(question_number) + 1);
+    sprintf(res, "REGISTERED %s\n", question_number);
 
     sends(socket, res);
     writear(socket, res); 
@@ -116,7 +117,6 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
             min_size = ct*strlen(question);
             char* buffer2 = malloc(ct*min_size);
             strncpy(buffer2,buffer_1,strlen(buffer_1));
-            free(buffer_1);
             buffer_1 = buffer2;            
         }
         strncpy(buffer_1 + place,question,strlen(question));
