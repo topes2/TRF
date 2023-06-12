@@ -156,57 +156,6 @@ void QandA(int sockfd, char *buffer, char *res){
     } 
 }
 
-
-/*
-int put_file(int socket, char* buffer){
-    char *pt = strchr(buffer + strlen(PUTFILES_CODE) + 1, ':') + 1;
-    char *bytesS = malloc(strlen(pt) + 1);
-    pt = buffer + strlen(PUTFILES_CODE) + 1;
-    char *filename = malloc(strlen(pt) + 1);
-
-    if(sscanf(pt, "%[^:]:%s", filename, bytesS) != 2){
-        printf("Someting went wrong\n");
-        return 0;
-    }
-
-    int sizef;
-    int bytes = atoi(bytesS);
-
-    if(!fileExists(filename, &sizef) && (sizef != bytes)){
-        printf("File does not exist!\n");
-        return 0;
-    }else{
-        sends(socket,buffer);
-        writear(socket,buffer);
-
-        FILE *f = fopen(filename, "r");
-
-        if(f == NULL){
-            printf("Couldnt open file\n");
-            return 0;
-        }
-
-        char file_buffer[sizef];
-
-        fread(file_buffer, 1, sizef, f); 
-
-        sends(socket,file_buffer);
-        writear(socket,file_buffer);
-    }
-    return 1;
-}
-
-
-int fileExists(char *filename, int *size) {
-    struct stat buffer;
-    if (stat(filename, &buffer) == 0) {
-        *size = buffer.st_size;
-        return 1;  // File exists
-    }
-    return 0;  // File does not exist or error occurred
-}
-*/
-
 void files(int sockfd, char *buffer, char *res){
     //anouncement
     sends(sockfd, res);

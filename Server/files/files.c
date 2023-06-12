@@ -15,10 +15,10 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
     strcpy(filename, buffer + strlen(PUTFILES_CODE) + 1);
     *pt = ':';
 
-    
     datum key, content;
     int exists = 0;
     key = gdbm_firstkey(db);
+
     while(key.dptr){
         content = gdbm_fetch(db, key);
 
@@ -27,9 +27,11 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
             //file already in database
             char *newString = malloc(strlen(filename) + strlen(pt + 1) + 2);
             sprintf(newString, "%s %s", filename, pt + 1);
-
+            
             content.dptr = newString;
             content.dsize = strlen(content.dptr);
+
+            printf("Replace Key: %s, content: %s\n", key.dptr, content.dptr);
 
             //replace
             if(gdbm_store(db, key, content, GDBM_REPLACE) != 0){
@@ -50,7 +52,6 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
         char sInt[11];
 
         sprintf(sInt, "%d", nFiles);
-        printf("Nfiles: %s\n", sInt);
 
         key.dptr = sInt;
         key.dsize = strlen(key.dptr);
@@ -61,6 +62,8 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
         content.dptr = newString;
         content.dsize = strlen(newString);
 
+        printf("Key: %s, content: %s\n", key.dptr, content.dptr);
+
         gdbm_store(db, key, content, GDBM_INSERT);
     }
 
@@ -68,10 +71,11 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
     char *dir = malloc(strlen(filename) + strlen("FilesUploaded/") + 1);
     sprintf(dir, "FilesUploaded/%s", filename);
 
+    char *fileBuffer = malloc(bytes + 1);
+
     //read client stuff
     int bytesRead = recs(socket);
-    readar(socket, buffer, bytesRead);
-
+    readar(socket, fileBuffer, bytesRead);
     //W clears the file and opens in write mode
     FILE *f = fopen(dir, "w");
 
@@ -82,13 +86,13 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
     }
 
     //write stuff
-    fprintf(f, "%s", buffer);
+    fprintf(f, "%s", fileBuffer);
 
     fclose(f);
 
     //send message to client
-    char *sendString = malloc(strlen(filename) + strlen("UPLOADED ") + 1);
-    sprintf(sendString, "UPLOADED %s", filename);
+    char *sendString = malloc(strlen(filename) + strlen("UPLOADED ") + 2);
+    sprintf(sendString, "UPLOADED %s\n", filename);
 
     sends(socket, sendString);
     writear(socket, sendString);
