@@ -7,8 +7,6 @@
 #include "../network/network.h"
 
 int putfile(int socket, char *buffer, GDBM_FILE db) {
-    printf("buffer: %s\n", buffer);
-
     char *pt = strchr(buffer + strlen(PUTFILES_CODE) + 1, ':'); //Bytes
     int bytes = atoi(pt + 1);
         

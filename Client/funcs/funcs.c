@@ -230,6 +230,7 @@ void files(int sockfd, char *buffer, char *res){
         }
         
         char *fileOpen = malloc(strlen(filename) + strlen("Client/") + 1);
+        sprintf(fileOpen, "Client/%s", filename);
 
         FILE* f = fopen(fileOpen, "r");
 
