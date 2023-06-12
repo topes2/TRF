@@ -5,6 +5,7 @@
         "string.h": "c",
         "defines.h": "c",
         "random": "c",
-        "chrono": "c"
+        "chrono": "c",
+        "network.h": "c"
     }
 }

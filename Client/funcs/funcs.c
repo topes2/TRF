@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <sys/stat.h>
 
 #include "../funcs/funcs.h"
 #include "../../configs.h"
@@ -54,11 +55,13 @@ char* formating(char *buffer){ // switch to switch case if we have time
     } else if(!strncmp("REMOVE ", buffer, strlen("REMOVE "))){
         char *res = malloc(strlen(buffer + strlen("REMOVE ")));
 
-        char *username = malloc(strlen(buffer + strlen("REMOVE ")));
-        username = buffer + strlen("REMOVE ");
-        printf("Username: %s\n", username);
-        //sprintf(res, "%s:%s:%s", REMOVE_ENTRY, nQuestion, username);
-        //printf("res: %s\n", res);
+        char *command = strtok(buffer, " "); 
+        char *nquestion = strtok(NULL, " "); 
+        char *user = strtok(NULL, " "); 
+
+        sprintf(res, "%s:%s:%s", REMOVE_ENTRY, nquestion, user);
+
+        return res;
     }
 
     
@@ -75,7 +78,8 @@ char* formating(char *buffer){ // switch to switch case if we have time
 
         sprintf(res, "%s:%s:%d", PUTFILES_CODE, fileName, nBytes);
 
-        return res;    
+        return res;  
+
     } else if (!strcmp("LISTFILES", buffer)){
         return LISTFILES_CODE;
 
@@ -136,62 +140,137 @@ void QandA(int sockfd, char *buffer, char *res){
     int rec;
     sends(sockfd,res);
     writear(sockfd, res);
-    if(!strncmp(res, ASK_CODE, strlen(ASK_CODE)) || !strncmp(res, ANSWER_CODE, strlen(ANSWER_CODE))){
+
+    if(!strncmp(res, ASK_CODE, strlen(ASK_CODE)) || !strncmp(res, ANSWER_CODE, strlen(ANSWER_CODE)) || strncmp(res, REMOVE_ENTRY, strlen(REMOVE_ENTRY))){
         memset(buffer, 0, BUFFER_SIZE);
         rec = recs(sockfd);
         readar(sockfd, buffer, rec);
         printf("%s", buffer);
+        
     } else if(!strcmp(res, LISTQUESTIONS_CODE)){
         rec = recs(sockfd);
         readar(sockfd, buffer, rec);
 
         printf("%s\nENDQUESTIONS\n", buffer);
        
-    }
+    } 
 }
 
+
+/*
+int put_file(int socket, char* buffer){
+    char *pt = strchr(buffer + strlen(PUTFILES_CODE) + 1, ':') + 1;
+    char *bytesS = malloc(strlen(pt) + 1);
+    pt = buffer + strlen(PUTFILES_CODE) + 1;
+    char *filename = malloc(strlen(pt) + 1);
+
+    if(sscanf(pt, "%[^:]:%s", filename, bytesS) != 2){
+        printf("Someting went wrong\n");
+        return 0;
+    }
+
+    int sizef;
+    int bytes = atoi(bytesS);
+
+    if(!fileExists(filename, &sizef) && (sizef != bytes)){
+        printf("File does not exist!\n");
+        return 0;
+    }else{
+        sends(socket,buffer);
+        writear(socket,buffer);
+
+        FILE *f = fopen(filename, "r");
+
+        if(f == NULL){
+            printf("Couldnt open file\n");
+            return 0;
+        }
+
+        char file_buffer[sizef];
+
+        fread(file_buffer, 1, sizef, f); 
+
+        sends(socket,file_buffer);
+        writear(socket,file_buffer);
+    }
+    return 1;
+}
+
+
+int fileExists(char *filename, int *size) {
+    struct stat buffer;
+    if (stat(filename, &buffer) == 0) {
+        *size = buffer.st_size;
+        return 1;  // File exists
+    }
+    return 0;  // File does not exist or error occurred
+}
+*/
+
 void files(int sockfd, char *buffer, char *res){
+    //anouncement
     sends(sockfd, res);
     writear(sockfd, res);
 
     int rec;
 
     if(!strncmp(res, PUTFILES_CODE, strlen(PUTFILES_CODE))){
-        rec = recs(sockfd);
-        readar(sockfd, buffer, rec);
-
+        char *pt = strchr(res + strlen(PUTFILES_CODE) + 1, ':'); //Bytes
+        int bytes = atoi(pt + 1);
         
+        char *filename = malloc(strlen(res + strlen(PUTFILES_CODE)) - strlen(pt + 1) + 1);
+        *pt = '\0';
+        strcpy(filename, res + strlen(PUTFILES_CODE) + 1);
+        *pt = ':';
 
-        if(!strcmp(buffer, "1")){
-            printf("Error, file is already in server\n");
-        } 
-        int size = getInput(buffer);
+        //see if the file exists
+        if(access(filename, F_OK) != -1){
+            printf("File doesnt exist\n");
+            return;
+        }
+        
+        char *fileOpen = malloc(strlen(filename) + strlen("Client/") + 1);
 
-        //check if all bytes are right
-        int bytesWrite;
-        char *pt = strchr(res + strlen(PUTFILES_CODE) + 1, ':') + 1;
+        FILE* f = fopen(fileOpen, "r");
 
-        if(sscanf(pt, "%d", &bytesWrite) != 1){
-            printf("Conversion error, please try again\n");
-            sends(sockfd, "1");
-            writear(sockfd, "1");
+        if(f == NULL){
+            printf("Couldn't open file\n");
             return;
         }
 
-        if(bytesWrite != size){
-            printf("Error, bytes dont match!\n");
-            sends(sockfd, "1");
-            writear(sockfd, "1");
+        fseek(f, 0, SEEK_END); // move para o final do arquivo
+        int size = (int) ftell(f); // obtem a posição atual do ponteiro do arquivo
+        
+        if(bytes != size){
+            printf("bytes dont match\n");
             return;
         }
 
-        sends(sockfd, "0");
-        writear(sockfd, "0");
+        char *fileBuffer = malloc(size + 1);
+        rewind(f); 
 
-        //send information
+        size_t result = fread(buffer, 1, size, f);
+        if(result != size) {
+            printf("Reading error\n");
+
+            free(buffer);
+            fclose(f);
+            return;
+        }
+        buffer[size] = '\0';
+
+        fclose(f);
+
+        //send buffer to server
         sends(sockfd, buffer);
         writear(sockfd, buffer);
-       
+
+        //get response
+        int resp = recs(sockfd);
+        readar(sockfd, buffer, resp);
+        printf("%s", buffer);
+
+        return;
 
     } else if(!strncmp(res, LISTFILES_CODE, strlen(LISTFILES_CODE))){
         int bytes = recs(sockfd);

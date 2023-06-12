@@ -167,8 +167,8 @@ int main(){
                         printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
                         
                     }else if(!strncmp(REMOVE_ENTRY,buffer, strlen(REMOVE_ENTRY))){
-                        //kick()                   
-                    
+                        printf("buffer: %s\n", buffer);
+
                     } else if(!strncmp(PUTFILES_CODE, buffer, strlen(PUTFILES_CODE))){
                         putfile(clients[i].socket, buffer, dbFiles);
                         printf("PUTFILE - user: %s\n", clients[i].userName);

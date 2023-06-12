@@ -6,89 +6,95 @@
 
 #include "../network/network.h"
 
-int putfile(int socket, char *buffer, GDBM_FILE db){
-    printf("putfiles, buffer: %s\n", buffer);
-    char *fileName = strchr(buffer, ':') + 1;
-    char *pt = fileName;
-    char *bytes = strchr(pt, ':');
-    *bytes = '\0';
-    bytes++;
+int putfile(int socket, char *buffer, GDBM_FILE db) {
+    printf("buffer: %s\n", buffer);
 
-    //see if the file already exists
-    datum key, content;
+    char *pt = strchr(buffer + strlen(PUTFILES_CODE) + 1, ':'); //Bytes
+    int bytes = atoi(pt + 1);
+        
+    char *filename = malloc(strlen(buffer + strlen(PUTFILES_CODE)) - strlen(pt + 1) + 1);
+    *pt = '\0';
+    strcpy(filename, buffer + strlen(PUTFILES_CODE) + 1);
+    *pt = ':';
 
-    key = gdbm_firstkey(db);
-
-    int nBooks = 0;
     
-    //key = num file / content = filename bytes
+    datum key, content;
+    int exists = 0;
+    key = gdbm_firstkey(db);
     while(key.dptr){
         content = gdbm_fetch(db, key);
 
-        char *copy = malloc(strlen(content.dptr));
-        sscanf(content.dptr, "%s ", copy);
+        if(!strncmp(content.dptr, filename, strlen(filename))){
+            exists = 1;
+            //file already in database
+            char *newString = malloc(strlen(filename) + strlen(pt + 1) + 2);
+            sprintf(newString, "%s %s", filename, pt + 1);
 
+            content.dptr = newString;
+            content.dsize = strlen(content.dptr);
 
-        if(content.dptr && !strcmp(copy, fileName)){
-            //book already in data base
-            sends(socket, "1");
-            writear(socket, "1");
-
-            return 1;
+            //replace
+            if(gdbm_store(db, key, content, GDBM_REPLACE) != 0){
+                printf("Couldnt replace\n");
+            }
+            break;
         }
 
-        datum nextkey = gdbm_nextkey(db, key);
-        free(key.dptr);
-        key = nextkey;
-        nBooks++;
+        key = gdbm_nextkey(db, key);
     }
-    
-    //book doesnt exist in data base
 
-    //send message to client
-    sends(socket, "0");
-    writear(socket, "0");
+    if(!exists){
+        gdbm_count_t count;
+        gdbm_count(db, &count);
 
-    //see if the user has input done
+        int nFiles = (int) count;
+        
+        char sInt[11];
+
+        sprintf(sInt, "%d", nFiles);
+        printf("Nfiles: %s\n", sInt);
+
+        key.dptr = sInt;
+        key.dsize = strlen(key.dptr);
+
+        char *newString = malloc(strlen(filename) + strlen(pt + 1) + 2);
+        sprintf(newString, "%s %s", filename, pt + 1);
+
+        content.dptr = newString;
+        content.dsize = strlen(newString);
+
+        gdbm_store(db, key, content, GDBM_INSERT);
+    }
+
+    //write file
+    char *dir = malloc(strlen(filename) + strlen("FilesUploaded/") + 1);
+    sprintf(dir, "FilesUploaded/%s", filename);
+
+    //read client stuff
     int bytesRead = recs(socket);
     readar(socket, buffer, bytesRead);
-    
-    if(strcmp(buffer, "1")){
+
+    //W clears the file and opens in write mode
+    FILE *f = fopen(dir, "w");
+
+    if(f == NULL){
+        printf("Couldnt open file\n");
+        //write to client
         return -1;
     }
 
-    bytesRead = recs(socket);
-    readar(socket, buffer, bytesRead);
-    printf("buffer: %s\n", buffer);
-
-    //create new file
-    char *path = malloc(strlen("FilesUploaded/") + strlen(fileName) + 1);
-    sprintf(path, "FilesUploaded/%s", fileName);
-
-    FILE *f = fopen(path, "w");
+    //write stuff
+    fprintf(f, "%s", buffer);
 
     fclose(f);
 
-    //add name to data base
-    char *nBooksString = malloc(21);
-    sprintf(nBooksString, "%d", nBooks);
+    //send message to client
+    char *sendString = malloc(strlen(filename) + strlen("UPLOADED ") + 1);
+    sprintf(sendString, "UPLOADED %s", filename);
 
-    key.dptr = nBooksString;
-    key.dsize = strlen(nBooksString);
+    sends(socket, sendString);
+    writear(socket, sendString);
 
-    char *dbCont = malloc(strlen(fileName) + 12);
-    sprintf(dbCont, "%s %s", fileName, bytes);
-    
-
-    content.dptr = dbCont;
-    content.dsize = strlen(dbCont);
-
-    if(gdbm_store(db, key, content, GDBM_INSERT) != 0){
-        printf("File already existed in data base\n");
-        return -1;
-    }
-
-    //write for client UPLOADED file !!!!!!!!!!!!!!!!!!!
     return 0;
 }
 
@@ -96,6 +102,36 @@ int getFile(int socket, int n, GDBM_FILE db){
 
 }
 
+/*
 void listFiles(int socket, char *buffer, GDBM_FILE db){
+    datum key,cont;
+    gdbm_count_t t = gdbm_count(db,t);
+    key = gdbm_firstkey(db);
+    cont = gdbm_fetch(db,cont);
 
+    int place = 0, si = (int)(t*streln(cont.dptr));
+    char* buffer = malloc(si);
+    
+    strncpy(buffer + place,cont.dptr,strlen(cont.dptr));
+    place += strlen(cont.dptr);
+
+    while(key.dptr){
+        gdbm_nextkey(db,key);
+        cont = gdbm_fetch(db,cont);
+            
+        if((strlen(cont.dptr) > si)){ //making the buffer bigger if the question is bigger than the min value
+            si = t*strlen(cont.dptr);
+            char* buffer2 = malloc(t*si);
+            strncpy(buffer2,buffer,strlen(buffer));
+            buffer = buffer2;            
+        }
+
+        strncpy(buffer + place,cont.dptr,strlen(cont.dptr));
+        place += strlen(cont.dptr);
+        gdbm_nextkey(db,key);
+    }
+    
+    sends(socket,buffer);
+    writear(Socket,buffer);   
 }
+*/

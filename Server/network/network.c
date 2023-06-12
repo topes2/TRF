@@ -22,10 +22,11 @@ int Socket(){
 }
 
 //server side
-//set defeult value of 0 to clients sockets array
+//set default value of 0 to clients sockets array
 void NetworkS(client *clients, int maxClients){
     for (int i = 0; i < maxClients; i++) {
         clients[i].socket = 0;
+        strcpy(clients[i].userName, "GUEST");
     }
 }
 

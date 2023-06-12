@@ -37,7 +37,8 @@ int login(char *username, char *buffer, GDBM_FILE db){
             return 1; //Error inserting
         }
     } 
-   
+    
+    memset(username, 0, strlen(username) + 1);
     strcpy(username, userName);
     return 0; //login done
 }

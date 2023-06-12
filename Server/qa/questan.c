@@ -44,7 +44,7 @@ void add_answer(char *answer, char *userid, GDBM_FILE db, int socket){ // adding
     char *token = strtok(answer,":"); //split the answer being the format NUMBER:ANSWER
     
     //n Question
-    char question_number[strlen(token)]; //get the question from the token
+    char question_number[strlen(token)]; //get the question number from the token
     strcpy(question_number, token);
     printf("token = %s \n",token);
     

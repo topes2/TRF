@@ -47,11 +47,12 @@ int main(){
             //its already logged in
             char *res = formating(buffer);
             if (res != NULL){
-                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE))){//these commands all share a function so they are grouped up
+                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE)) || !strncmp(REMOVE_ENTRY, res, strlen(REMOVE_ENTRY))){//these commands all share a function so they are grouped up
                     QandA(sockfd, buffer, res);
 
                 }else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE))){// these commands all share functions so they are grouped up
                     files(sockfd, buffer, res);
+                    printf("Files end!\n");
 
                 } else if(!strcmp(CLOSE_CODE, res)){
                     //send message
