@@ -223,9 +223,9 @@ void files(int sockfd, char *buffer, char *res){
         return;
 
     } else if(!strncmp(res, LISTFILES_CODE, strlen(LISTFILES_CODE))){
-        int bytes = recs(sockfd);
-        readar(sockfd, buffer, bytes);
-        printf("%s", buffer);
+        //int bytes = recs(sockfd);
+        //readar(sockfd, buffer, bytes);
+        //printf("%s", buffer);
         return;
         
     } else if(!strncmp(res, GETFILES_CODE, strlen(GETFILES_CODE))){

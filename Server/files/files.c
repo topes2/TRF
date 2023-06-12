@@ -104,17 +104,19 @@ int getFile(int socket, int n, GDBM_FILE db){
 
 }
 
-/*
-void listFiles(int socket, char *buffer, GDBM_FILE db){
+
+void listFiles(int socket, GDBM_FILE db){
     datum key,cont;
-    gdbm_count_t t = gdbm_count(db,t);
+    gdbm_count_t t;
+    gdbm_count(db, &t);
+
     key = gdbm_firstkey(db);
     cont = gdbm_fetch(db,cont);
 
-    int place = 0, si = (int)(t*streln(cont.dptr));
+    int place = 0, si = (int)(t *strlen(cont.dptr));
     char* buffer = malloc(si);
     
-    strncpy(buffer + place,cont.dptr,strlen(cont.dptr));
+    strncpy(buffer + place,cont.dptr, strlen(cont.dptr));
     place += strlen(cont.dptr);
 
     while(key.dptr){
@@ -133,7 +135,6 @@ void listFiles(int socket, char *buffer, GDBM_FILE db){
         gdbm_nextkey(db,key);
     }
     
-    sends(socket,buffer);
-    writear(Socket,buffer);   
+    sends(socket, buffer);
+    writear(socket, buffer);   
 }
-*/
