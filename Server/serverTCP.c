@@ -12,7 +12,6 @@
 #include <limits.h>
 #include <sys/stat.h>
 
-
 #include "network/network.h"
 #include "../configs.h"
 #include "databases/db.h"

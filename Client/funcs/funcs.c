@@ -157,10 +157,6 @@ void QandA(int sockfd, char *buffer, char *res){
 }
 
 void files(int sockfd, char *buffer, char *res){
-    //anouncement
-    sends(sockfd, res);
-    writear(sockfd, res);
-
     int rec;
 
     if(!strncmp(res, PUTFILES_CODE, strlen(PUTFILES_CODE))){
@@ -189,7 +185,7 @@ void files(int sockfd, char *buffer, char *res){
         }
 
         fseek(f, 0, SEEK_END); // move para o final do arquivo
-        int size = (int) ftell(f); // obtem a posição atual do ponteiro do arquivo
+        int size = (int) ftell(f); // obtem a posição atual do ponteiro do arquivo // + 1 -> \0
         
         if(bytes != size){
             printf("bytes dont match\n");
@@ -199,7 +195,13 @@ void files(int sockfd, char *buffer, char *res){
         char *fileBuffer = malloc(size + 1);
         rewind(f); 
 
-        size_t result = fread(buffer, 1, size, f);
+        if(bytes > 5000){
+            printf("File is to big!\n");
+            return;
+        }
+
+        size_t result = fread(buffer, 1, size, f); //limite de 5k bytes 
+
         if(result != size) {
             printf("Reading error\n");
 
@@ -208,6 +210,9 @@ void files(int sockfd, char *buffer, char *res){
             return;
         }
         buffer[size] = '\0';
+
+        sends(sockfd, res);
+        writear(sockfd, res);
 
         fclose(f);
 
