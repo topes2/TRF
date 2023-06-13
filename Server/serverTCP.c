@@ -123,7 +123,8 @@ int main(){
                     printf("%s left.\n", clients[i].userName);
                     close(clients[i].socket);
                     clients[i].socket = 0;
-                    memset(clients[i].userName, 0, strlen(clients[i].userName));
+                    memset(clients[i].userName, 0, MAX_USERNAME_LENGTH);
+                    strcpy(clients[i].userName, "GUEST");
                     break;
                 }
 
@@ -165,7 +166,7 @@ int main(){
                         list_questions(clients[i].socket, dbQ, dbA);
                         printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
                         
-                    }else if(!strncmp(REMOVE_ENTRY,buffer, strlen(REMOVE_ENTRY))){
+                    }else if(!strncmp(REMOVE_ENTRY,buffer, strlen(REMOVE_ENTRY))){ //falta ---------------------
                         printf("buffer: %s\n", buffer);
 
                     } else if(!strncmp(PUTFILES_CODE, buffer, strlen(PUTFILES_CODE))){
@@ -176,6 +177,10 @@ int main(){
                         listFiles(clients[i].socket, dbFiles);
                         printf("LISTFILES - user: %s\n", clients[i].userName);
                         
+                    }else if(!strncmp(GETFILES_CODE, buffer, strlen(GETFILES_CODE))){
+                        getFile(clients[i].socket, buffer, dbFiles);
+                        printf("GETFILES - user: %s\n", clients[i].userName);
+
                     }else if (!strcmp(CLOSE_CODE, buffer)){ //closing 
                         printf("Closing server...\n");
 

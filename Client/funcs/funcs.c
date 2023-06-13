@@ -241,7 +241,35 @@ void files(int sockfd, char *buffer, char *res){
         return;
         
     } else if(!strncmp(res, GETFILES_CODE, strlen(GETFILES_CODE))){
+        //anouncement
+        sends(sockfd, res);
+        writear(sockfd, res);
+
+        //obtain file data
+        int bytes = recs(sockfd);
+        readar(sockfd, buffer, bytes);
+        printf("%s", buffer);
+
+        char *str = strdup(buffer);
+
+        char *filename = strtok(str, " ");
+        char *bytesString = strtok(NULL, " ");
+
+        int bytesF = atoi(bytesString);
+
+        //see if file exist if so creates a diferent name
+        char *cwd = malloc(_PC_PATH_MAX);
+        getcwd(cwd, _PC_PATH_MAX);
+
+        int i = 0;
+
+        char *filecwd = malloc(_PC_PATH_MAX);
+        sprintf(filecwd, "%s/%s", cwd, filename);
+
+        printf("Path: %s\n", filecwd);
+        //create and write new file
         
+
     }
 }
 

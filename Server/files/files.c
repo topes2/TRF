@@ -6,22 +6,6 @@
 
 #include "../network/network.h"
 
-//debug
-void print_gdbm_contents(GDBM_FILE db) {
-    datum key = gdbm_firstkey(db);
-
-    while (key.dptr) {
-        datum value = gdbm_fetch(db, key);
-        printf("Key: %s\n", (char *)key.dptr);
-        printf("Value: %s\n", (char *)value.dptr);
-        free(value.dptr);
-        datum next_key = gdbm_nextkey(db, key);
-        free(key.dptr);
-        key = next_key;
-    }
-}
-
-
 int putfile(int socket, char *buffer, GDBM_FILE db) {
     char *pt = strchr(buffer + strlen(PUTFILES_CODE) + 1, ':'); //Bytes
     int bytes = atoi(pt + 1);
@@ -47,7 +31,7 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
             content.dptr = newString;
             content.dsize = strlen(content.dptr);
 
-            printf("Replace Key: %s, content: %s\n", key.dptr, content.dptr);
+            printf("File %d replaced\n");
 
             //replace
             if(gdbm_store(db, key, content, GDBM_REPLACE) != 0){
@@ -78,7 +62,7 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
         content.dptr = newString;
         content.dsize = strlen(newString);
 
-        printf("Key: %s, content: %s\n", key.dptr, content.dptr);
+        printf("New file uploaded\n");
 
         gdbm_store(db, key, content, GDBM_INSERT);
     }
@@ -116,8 +100,31 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
     return 0;
 }
 
-int getFile(int socket, int n, GDBM_FILE db){
+int getFile(int socket, char *buffer, GDBM_FILE db){
+    datum key, content;
 
+    key.dptr = buffer + strlen(GETFILES_CODE) + 1;
+    key.dsize = strlen(key.dptr);
+
+    //get the content
+    content = gdbm_fetch(db, key);
+
+    char *file = malloc(content.dsize + 2);
+    strncpy(file, content.dptr, content.dsize);
+    strncpy(file + content.dsize, "\n\0", strlen("\n\0"));
+
+    //send to client
+    sends(socket, file);
+    writear(socket, file);
+
+    //open file
+    
+
+    //read file
+
+    //send file
+
+    return 0;
 }
 
 
