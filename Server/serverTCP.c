@@ -174,7 +174,7 @@ int main(){
 
                     }else if(!strcmp(LISTFILES_CODE, buffer)){
                         listFiles(clients[i].socket, dbFiles);
-                        printf("LISTFILES - user: %s", clients[i].userName);
+                        printf("LISTFILES - user: %s\n", clients[i].userName);
                         
                     }else if (!strcmp(CLOSE_CODE, buffer)){ //closing 
                         printf("Closing server...\n");

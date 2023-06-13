@@ -6,6 +6,22 @@
 
 #include "../network/network.h"
 
+//debug
+void print_gdbm_contents(GDBM_FILE db) {
+    datum key = gdbm_firstkey(db);
+
+    while (key.dptr) {
+        datum value = gdbm_fetch(db, key);
+        printf("Key: %s\n", (char *)key.dptr);
+        printf("Value: %s\n", (char *)value.dptr);
+        free(value.dptr);
+        datum next_key = gdbm_nextkey(db, key);
+        free(key.dptr);
+        key = next_key;
+    }
+}
+
+
 int putfile(int socket, char *buffer, GDBM_FILE db) {
     char *pt = strchr(buffer + strlen(PUTFILES_CODE) + 1, ':'); //Bytes
     int bytes = atoi(pt + 1);
@@ -109,30 +125,37 @@ void listFiles(int socket, GDBM_FILE db){
     datum key,cont;
     gdbm_count_t t;
     gdbm_count(db, &t);
+    int ti = (int) t;
+    int ss = strlen(cont.dptr); // ss = starter size
 
     key = gdbm_firstkey(db);
-    cont = gdbm_fetch(db,cont);
+    cont = gdbm_fetch(db,key);
 
-    int place = 0, si = (int)(t *strlen(cont.dptr));
+    int place = 0, si = (ti * ss);
     char* buffer = malloc(si);
-    
-    strncpy(buffer + place,cont.dptr, strlen(cont.dptr));
-    place += strlen(cont.dptr);
 
     while(key.dptr){
-        gdbm_nextkey(db,key);
-        cont = gdbm_fetch(db,cont);
-            
-        if((strlen(cont.dptr) > si)){ //making the buffer bigger if the question is bigger than the min value
-            si = t*strlen(cont.dptr);
-            char* buffer2 = malloc(t*si);
-            strncpy(buffer2,buffer,strlen(buffer));
-            buffer = buffer2;            
+        cont = gdbm_fetch(db,key);
+
+        if((strlen(cont.dptr) > ss)){ //making the buffer bigger if the question is bigger than the min value
+            si = ti*strlen(cont.dptr);
+            char* buffer2 = malloc(si + 4);
+            memset(buffer2, 0, sizeof(buffer2));
+            strncpy(buffer2, buffer, strlen(buffer));
+            buffer = buffer2;
         }
 
-        strncpy(buffer + place,cont.dptr,strlen(cont.dptr));
-        place += strlen(cont.dptr);
-        gdbm_nextkey(db,key);
+        char *num = malloc(11);//digits
+        strncpy(num, key.dptr, key.dsize);
+        char *newString = malloc(strlen(num) + 4);
+        sprintf(newString, "(%s) ", num);
+
+        strcat(buffer, newString);
+        strcat(buffer, cont.dptr);
+        strcat(buffer, "\n");
+
+        place += strlen(cont.dptr) + 1;
+        key = gdbm_nextkey(db,key);
     }
     
     sends(socket, buffer);

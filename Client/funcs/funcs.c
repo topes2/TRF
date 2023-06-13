@@ -211,6 +211,7 @@ void files(int sockfd, char *buffer, char *res){
         }
         buffer[size] = '\0';
 
+        //Anouncement
         sends(sockfd, res);
         writear(sockfd, res);
 
@@ -228,9 +229,15 @@ void files(int sockfd, char *buffer, char *res){
         return;
 
     } else if(!strncmp(res, LISTFILES_CODE, strlen(LISTFILES_CODE))){
-        //int bytes = recs(sockfd);
-        //readar(sockfd, buffer, bytes);
-        //printf("%s", buffer);
+        //Anouncement
+        sends(sockfd, res);
+        writear(sockfd, res);
+
+        int bytes = recs(sockfd);
+        readar(sockfd, buffer, bytes);
+        printf("%s", buffer);
+
+        printf("ENDFILES\n");
         return;
         
     } else if(!strncmp(res, GETFILES_CODE, strlen(GETFILES_CODE))){

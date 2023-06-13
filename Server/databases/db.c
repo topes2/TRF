@@ -82,3 +82,4 @@ int loginDB(char string[], char string1[], GDBM_FILE db){
     }    
     return 1; //cant find
 }
+

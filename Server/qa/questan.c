@@ -166,20 +166,3 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
     sends(socket,buffer_1);
     writear(socket, buffer_1);
 }
-
-//debug
-void print_gdbm_contents(GDBM_FILE db) {
-    datum key = gdbm_firstkey(db);
-
-    while (key.dptr) {
-        datum value = gdbm_fetch(db, key);
-        printf("Key: %s\n", (char *)key.dptr);
-        printf("Value: %s\n", (char *)value.dptr);
-        free(value.dptr);
-        datum next_key = gdbm_nextkey(db, key);
-        free(key.dptr);
-        key = next_key;
-    }
-}
-
-
