@@ -46,22 +46,6 @@ void Connect(int sockfd, struct sockaddr_in serv_addr){
     }
 }
 
-
-int readFromServer(int sockfd, char *buffer) {
-    memset(buffer, 0, BUFFER_SIZE);
-    ssize_t len = read(sockfd, buffer, BUFFER_SIZE);
-
-    //if the server disconects
-    if (len <= 0) {
-        printf("Server disconnected...\n");
-        return -1;   
-    }
-
-    //Server responses
-    printf("%s", buffer);
-    return 0;
-}
-
 int readar(int socket, char* buffer,int size){
     memset(buffer, 0, BUFFER_SIZE);
     char* pt = buffer;
@@ -71,13 +55,6 @@ int readar(int socket, char* buffer,int size){
     }
 
     return strlen(buffer);    
-}
-
-int min(int a, int b){
-    if(a < b){
-        return a;
-    }
-    return b;
 }
 
 

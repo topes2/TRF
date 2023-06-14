@@ -28,7 +28,8 @@ int main(){
     serv_addr = ServerSetup(serv_addr, PORT, server);
     Connect(sockfd, serv_addr);
 
-    readFromServer(sockfd, buffer); //handles the first "Wellcome" message from the server
+    read(sockfd,buffer,strlen(WELCOME_MSG));
+    printf("%s", buffer);
     //loop
     while(1){
         //Interaction with the server
@@ -36,7 +37,7 @@ int main(){
         
         if(!loggedin){  //checks if its already logged in
             char *loginCommand = formatingLogin(buffer);         
-           if(loginCommand == NULL){ //check if the command given was login or not
+            if(loginCommand == NULL){ //check if the command given was login or not
                 printf("Invalid login command\n");
             } else {
                 sends(sockfd, loginCommand); // send the size to check with the max allowed size of transfers
