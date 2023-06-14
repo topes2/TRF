@@ -6,6 +6,8 @@
         "defines.h": "c",
         "random": "c",
         "chrono": "c",
-        "network.h": "c"
+        "network.h": "c",
+        "limits": "c",
+        "semaphore": "c"
     }
 }

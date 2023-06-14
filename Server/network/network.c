@@ -98,9 +98,9 @@ int acceptNewConnection(int serverSocket, client *clients, struct sockaddr_in *c
 void sends(int socket,char* buffer){
     int size = strlen(buffer);
     char sizes[11];
-    sprintf(sizes, "%d\n", size);  
-    write(socket,sizes,strlen(sizes));  
-}
+    sprintf(sizes, "%d\n\0", size);  
+    write(socket,sizes,strlen(sizes));
+    }
 
 
 

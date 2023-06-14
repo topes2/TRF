@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
+#include "../network/network.h"
 #include "../funcs/funcs.h"
 #include "../../configs.h"
 #include "funcs.h"
@@ -242,22 +243,25 @@ void files(int sockfd, char *buffer, char *res){
         
     } else if(!strncmp(res, GETFILES_CODE, strlen(GETFILES_CODE))){
         char *num = res + strlen(GETFILES_CODE) + 1;
-
         sends(sockfd, res);
         writear(sockfd, res);
 
-        //recive file anouncement name and future size in a string
-        int bytes = recs(sockfd);
+        
+        //receive file anouncement name and future size in a string
+        int bytes = recs(sockfd);  
+        printf("bytes = %d\n",bytes);     
         readar(sockfd, buffer, bytes);
-
+     
         printf("%s\n", buffer);
 
+        
         //decode
-        char *copy = strdup(buffer + strlen("FILE ") + strlen(num) + 1);
+        char *copy = strdup(buffer);
+        printf("copy %s \n",copy);
         
         char *pt = strtok(copy, " ");
         pt = strtok(NULL, " ");
-
+        
         bytes = atoi(pt);
 
         //see if file exist
@@ -271,31 +275,35 @@ void files(int sockfd, char *buffer, char *res){
         char *extension =  malloc(strlen(pt) + 2);
         strcpy(extension, pt);
 
+        printf("Filename : %s, extension %s\n", filename, extension);
+        printf("end\n");
         char *file = malloc(strlen(copy) + 12); //String that will hold the name-num.extension of the file
         sprintf(file, "Client/%s", copy);
         int i = 1;
+        
         while(access(file, F_OK) != -1){
             memset(file, 0, strlen(file));
             sprintf(file, "Client/%s-%d.%s", filename, i, extension);
             i++;
         }
 
-        printf("File name: %s\n", file);
-
-
+       
         FILE *f = fopen(file, "w");
 
         //Server sends content
-        char *fileBuffer = malloc(bytes + 1);
-        printf("read now\n");
-        readar(sockfd, fileBuffer, bytes);
-        printf("print done\n");
-
-        printf("String: %s, bytes: %d\n", fileBuffer, strlen(fileBuffer));
+        char *fileBuffer = malloc(bytes);
+        memset(fileBuffer,0,bytes);
+        char *test = malloc(20);
         
+        
+        readar(sockfd, fileBuffer, bytes);
+        fileBuffer[bytes] = '\0'; // end the file
 
+        printf("write, filebuffer: %s\n", fileBuffer);
+        
+        fwrite(fileBuffer,1,bytes,f);       
         fclose(f);
-
+        printf("please work\n");
         return;
     }
 }
@@ -316,21 +324,20 @@ int getInput(char *buffer){      //reads the user input and returns the size of 
 
 void sends(int socket,char* buffer){
     int size = strlen(buffer);
-    char sizes[5];
+    char sizes[11];
     sprintf(sizes, "%d\n", size);  
     write(socket,sizes,strlen(sizes));  
 }
 
 int recs(int socket){ //recieves the size of a message incoming to see how many times to read
-    char* buffer = malloc(20);
+    char* buffer = malloc(22);
     char c;
     int size;
     while(c != '\n'){
-        read(socket,&c,1);
+        read(socket, &c, 1);
         *buffer = c;
         buffer+=1;        
     }
-    
     size = atoi(buffer);
     return size;
 }

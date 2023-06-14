@@ -25,7 +25,7 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
         if(!strncmp(content.dptr, filename, strlen(filename))){
             exists = 1;
             //file already in database
-            char *newString = malloc(strlen(filename) + strlen(pt + 1) + 2);
+            char *newString = malloc(strlen(filename) + strlen(pt) + 2);
             sprintf(newString, "%s %s", filename, pt + 1);
             
             content.dptr = newString;
@@ -56,7 +56,7 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
         key.dptr = sInt;
         key.dsize = strlen(key.dptr);
 
-        char *newString = malloc(strlen(filename) + strlen(pt + 1) + 2);
+        char *newString = malloc(strlen(filename) + strlen(pt) + 2);
         sprintf(newString, "%s %s", filename, pt + 1);
 
         content.dptr = newString;
@@ -100,16 +100,12 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
     return 0;
 }
 
-
-
 int getFile(int socket,char *buffer, GDBM_FILE db){// RECEIVES code : number of file in bd
-    buffer = buffer + strlen(GETFILES_CODE) + 1; //get only the number of file
+    buffer = buffer + strlen(GETFILES_CODE) + 1; //get only the number of fill
     datum key,cont;
     int size_file;
-
     key.dptr = buffer; 
     key.dsize = strlen(buffer); 
-
     cont = gdbm_fetch(db,key); //get the name and size of file
 
     if(cont.dptr == NULL){ // if the file doesnt exist then say so to client shouldnt happen
@@ -118,106 +114,45 @@ int getFile(int socket,char *buffer, GDBM_FILE db){// RECEIVES code : number of 
         writear(socket, "1");
     }
 
-    char* nas = cont.dptr; //number and size
-    
+    char* nas = malloc(cont.dsize + 1);
+    strncpy(nas, cont.dptr, cont.dsize);
+    nas[cont.dsize] = '\0';
+
+
+
+
     //sending the name and size to cliente
     sends(socket,nas);
+    writear(socket,nas);
+
     char* token = strtok(nas," ");
-    char* name = malloc(strlen(token) + strlen("FilesUploaded/"));
+
+    char* name = malloc(strlen(token) + strlen("FilesUploaded/") + 1);
     sprintf(name, "FilesUploaded/%s", token);
+
     token = strtok(NULL," ");
     char* size = malloc(strlen(token));
     size = token;
     int size_give = atoi(size);
-
     FILE *f = fopen(name,"r");
-    
+
     if(f == NULL){
         printf("Error opening the file\n");
         sends(socket,"1");
-        write(socket,"1");
+        writear(socket,"1");
         return 0;
     }
-    printf("failed to open file");
     fseek(f, 0, SEEK_END); // seek to end of file
     size_file = ftell(f); // get current file pointer
     fseek(f, 0, SEEK_SET); // seek back to beginning of file 
-
-
-    sends(socket,size_file);
-        
-
-
-
-
-
-}
-
-
-
-
-
-
-/*
-int getFile(int socket, char *buffer, GDBM_FILE db){    
-    char *pt = buffer + strlen(GETFILES_CODE) + 1;
-    char *num = malloc(strlen(pt) + 1);
-    strcpy(num, pt);
-    
-    datum key, content;
-
-    key.dptr = num;
-    key.dsize = strlen(key.dptr);
-
-    content = gdbm_fetch(db, key);
-
-    if(content.dptr == NULL){ // if the file doesnt exist then say so to client shouldnt happen
-        //file doesnt exist
-        sends(socket, "1");
-        writear(socket, "1");
-    }
-
-    char *copy = strdup(content.dptr);
-    pt = strtok(copy, " ");
-    pt = strtok(NULL, " ");
-
-    char *filename = malloc(content.dsize - strlen(pt));
-    copy[content.dsize - strlen(pt) - 1] = '\0';
-    strcpy(filename, copy);
-    int bytes = atoi(pt); //SIZE in bytes of the file
-    printf("sizing done");
-
-    //file anouncement
-    char *head = malloc(content.dsize + strlen("FILE ") + strlen(num) + 2);
-    sprintf(head, "FILE %s %s", num, content.dptr);
-    sends(socket, head);
-    writear(socket, head);
-    printf("annoucement write done");
-
-    //open file to send 
-    char *file = malloc(strlen(filename) + strlen("FilesUploaded/") + 1);
-    sprintf(file, "FilesUploaded/%s", filename);
-    
-    FILE *f = fopen(file, "r");
-    printf("file opened done");
-
-    //read content
-    char *fileBuffer = malloc(bytes + 1);
-    fread(fileBuffer, sizeof(char), bytes, f);
-    fileBuffer[bytes] = '\0';
-
+    write(socket,size,strlen(size)); //used normal size since a file with a size with a number with more than 1024 digits is unlikely
+    char* bufferfile = malloc(size_file);
+    fread(bufferfile,1,size_file,f);   
+    writear(socket,bufferfile);
     fclose(f);
-
-    //send file content
-    sends(socket,fileBuffer);
-    printf("buffer = %s\n",strlen(fileBuffer)); 
-    writear(socket, fileBuffer); // send the file
-    printf("write done");
-
-    return 0;
 }
 
-*/
+
 
 
 void listFiles(int socket, GDBM_FILE db){

@@ -53,6 +53,7 @@ int main(){
 
                 }else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE)) || !strcmp(LISTFILES_CODE, res) || !strncmp(GETFILES_CODE, res, strlen(GETFILES_CODE))){// these commands all share functions so they are grouped up
                     files(sockfd, buffer, res);
+                    printf("done\n");
 
                 } else if(!strcmp(CLOSE_CODE, res)){
                     //send message
