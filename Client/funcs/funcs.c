@@ -241,7 +241,18 @@ void files(int sockfd, char *buffer, char *res){
         return;
         
     } else if(!strncmp(res, GETFILES_CODE, strlen(GETFILES_CODE))){
-        //anouncement
+        //Get directory to put new file
+        long pathMax = pathconf(".", _PC_PATH_MAX);
+        char *cwd;
+
+        cwd = malloc(pathMax);
+
+        if(getcwd(cwd, pathMax) == NULL){
+            printf("Couldnt get directory!\n");
+            return;
+        }
+
+        //anouncement to server
         sends(sockfd, res);
         writear(sockfd, res);
 
@@ -250,26 +261,58 @@ void files(int sockfd, char *buffer, char *res){
         readar(sockfd, buffer, bytes);
         printf("%s", buffer);
 
-        char *str = strdup(buffer);
+        char* copy = strdup(buffer); 
 
-        char *filename = strtok(str, " ");
-        char *bytesString = strtok(NULL, " ");
+        //Divide the string
+        char* token = strtok(copy, " ");
+        for (int i = 0; i < 2; i++) {
+            token = strtok(NULL, " "); //next token
+        }
 
-        int bytesF = atoi(bytesString);
+        char* filenameComplete = malloc(strlen(token) + 12); //if file exists we add digits
+        strcpy(filenameComplete, token);
+
+        //divide filename in name and extension
+        memset(copy, 0, sizeof(copy));
+        copy = strdup(filenameComplete); 
+
+        token = strtok(copy, ".");
+
+        char* filename = malloc(strlen(token) + 1);
+        strcpy(filename, token);
+
+        token = strtok(NULL, ".");
+
+        char* extension = malloc(strlen(token) + 1);
+        strcpy(extension, token);
 
         //see if file exist if so creates a diferent name
-        char *cwd = malloc(_PC_PATH_MAX);
-        getcwd(cwd, _PC_PATH_MAX);
+        char *filecwd = malloc(strlen(cwd) + strlen(filenameComplete) + strlen("Client/") + 2);
+        sprintf(filecwd, "%s/Client/%s", cwd, filenameComplete);
 
         int i = 0;
+        while (access(filecwd, F_OK) != -1){
+            //change the name until it doesnt exist
+            sprintf(filecwd, "%s/Client/%s-%d.%s", cwd, filename, i, extension); //Create new file
+            i++;
+        }
 
-        char *filecwd = malloc(_PC_PATH_MAX);
-        sprintf(filecwd, "%s/%s", cwd, filename);
-
-        printf("Path: %s\n", filecwd);
         //create and write new file
-        
+        FILE *f = fopen(filecwd, "w");
 
+        //server sends message
+        bytes = recs(sockfd);
+        printf("bytes: %d\n", bytes);
+        char *fileBuffer = malloc(bytes + 1);
+        readar(sockfd, fileBuffer, bytes);
+        printf("File buffer: %s\n", fileBuffer);
+        fileBuffer[bytes] = '\0';
+
+        //write message
+        fprintf(f, "%s", fileBuffer);
+
+        fclose(f);
+        return;
     }
 }
 

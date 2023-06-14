@@ -31,7 +31,7 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
             content.dptr = newString;
             content.dsize = strlen(content.dptr);
 
-            printf("File %d replaced\n");
+            printf("File %s replaced\n", key.dptr);
 
             //replace
             if(gdbm_store(db, key, content, GDBM_REPLACE) != 0){
@@ -109,20 +109,38 @@ int getFile(int socket, char *buffer, GDBM_FILE db){
     //get the content
     content = gdbm_fetch(db, key);
 
-    char *file = malloc(content.dsize + 2);
-    strncpy(file, content.dptr, content.dsize);
-    strncpy(file + content.dsize, "\n\0", strlen("\n\0"));
+    char *file = malloc(content.dsize + 2 + strlen("FILE ") + key.dsize);
+    //String creation
+    sprintf(file, "FILE %.*s %.*s\n", key.dsize, key.dptr, content.dsize, content.dptr);
 
     //send to client
     sends(socket, file);
     writear(socket, file);
 
-    //open file
+    char *filename = malloc(content.dsize + 1 + strlen("FilesUploaded/"));
+
+    char *token = strtok(content.dptr, " ");
     
+    filename = malloc(strlen(token) + strlen("FilesUploaded/") + 1); 
+    
+    sprintf(filename, "FilesUploaded/%s", token);
+
+    //open file
+    FILE *f = fopen(filename, "r");
+
+    fseek(f, 0, SEEK_END); // move para o final do arquivo
+    int size = (int) ftell(f); // obtem a posição atual do ponteiro do arquivo // + 1 -> \0
+
+    char *fileBuffer = malloc(size + 1);
+    rewind(f);
 
     //read file
+    fread(fileBuffer, 1, size, f);
 
+    fclose(f);
     //send file
+    sends(socket, fileBuffer);
+    writear(socket,fileBuffer);
 
     return 0;
 }
