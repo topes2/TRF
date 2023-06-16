@@ -4,7 +4,7 @@
 //includes for the code
 
 //server
-#define PORT 5559
+#define PORT 5558
 #define BUFFER_SIZE 5000
 #define MAX_MESSAGE_LENGTH 1024
 #define MAX_CLIENTS 100

@@ -101,55 +101,36 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
 }
 
 int getFile(int socket,char *buffer, GDBM_FILE db){// RECEIVES code : number of file in bd
-    buffer = buffer + strlen(GETFILES_CODE) + 1; //get only the number of fill
-    datum key,cont;
-    int size_file;
-    key.dptr = buffer; 
-    key.dsize = strlen(buffer); 
-    cont = gdbm_fetch(db,key); //get the name and size of file
+    //get the number of the file wanted from the user
+    char *num = malloc(21);
+    num = buffer + strlen(GETFILES_CODE) + 1;
+    //get the name of the file
+    datum key, content;
 
-    if(cont.dptr == NULL){ // if the file doesnt exist then say so to client shouldnt happen
-        //file doesnt exist
-        sends(socket, "1");
-        writear(socket, "1");
-    }
+    key.dptr = num;
+    key.dsize = strlen(key.dptr);
 
-    char* nas = malloc(cont.dsize + 1);
-    strncpy(nas, cont.dptr, cont.dsize);
-    nas[cont.dsize] = '\0';
+    content = gdbm_fetch(db, key);
 
+    //Obtain file size
+    char *contentCopy = strdup(content.dptr);
+    contentCopy[content.dsize] = '\0';
 
+    //send to client
+    sends(socket, contentCopy);
+    writear(socket, contentCopy);
 
+    //get file size and name
+    strtok(contentCopy, " ");
+    char *fileSize = strtok(NULL, " ");
 
-    //sending the name and size to cliente
-    sends(socket,nas);
-    writear(socket,nas);
+    char *filename = malloc(content.dsize - strlen(fileSize)); //we dont do +1 because there is a space is there
+    strncpy(filename, content.dptr, content.dsize - strlen(fileSize) - 1);
+    filename[content.dsize - strlen(fileSize)] = '\0';
 
-    char* token = strtok(nas," ");
+    printf("filesize: %s, len: %d\nfilename: %s, len: %d\n",  fileSize, strlen(fileSize), filename, strlen(filename));
 
-    char* name = malloc(strlen(token) + strlen("FilesUploaded/") + 1);
-    sprintf(name, "FilesUploaded/%s", token);
-
-    token = strtok(NULL," ");
-    char* size = malloc(strlen(token));
-    size = token;
-    int size_give = atoi(size);
-    FILE *f = fopen(name,"r");
-
-    if(f == NULL){
-        printf("Error opening the file\n");
-        sends(socket,"1");
-        writear(socket,"1");
-        return 0;
-    }
-    fseek(f, 0, SEEK_END); // seek to end of file
-    size_file = ftell(f); // get current file pointer
-    fseek(f, 0, SEEK_SET); // seek back to beginning of file 
-    write(socket,size,strlen(size)); //used normal size since a file with a size with a number with more than 1024 digits is unlikely
-    char* bufferfile = malloc(size_file);
-    fread(bufferfile,1,size_file,f);   
-    writear(socket,bufferfile);
-    fclose(f);
+    
 }
 
 
