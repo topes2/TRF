@@ -181,7 +181,17 @@ int main(){
                         getFile(clients[i].socket, buffer, dbFiles);
                         printf("GETFILES - user: %s\n", clients[i].userName);
 
-                    }else if (!strcmp(CLOSE_CODE, buffer)){ //closing 
+                    }else if(!strcmp(CREATE_ATTENDANCE_FILE_CODE, buffer)){
+                        if(!createAttendance(dbAttendance)){
+                            //success
+                            printf("CREATE ATTENDANCE - user: %s\n", clients[i].userName);
+                        } else {
+                            //failure
+                            printf("failed\n");
+                        }
+
+
+                    } else if (!strcmp(CLOSE_CODE, buffer)){ //closing 
                         printf("Closing server...\n");
 
                         //sockets

@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <gdbm.h>
 #include <time.h>
@@ -62,6 +63,37 @@ void attendance(time_t start, GDBM_FILE db, char *username){
     } else { //present 1
         regs(key, "1", db);
     }
+}
+
+int createAttendance(GDBM_FILE db){
+    FILE *f = fopen("FilesUploaded/Attendance.txt", "w");
+
+    if(f == NULL){
+        return 1;
+    }
+
+    datum key, content;
+    key = gdbm_firstkey(db);
+
+    while(key.dptr){
+        content = gdbm_fetch(db, key);
+
+        char *cont = malloc(key.dsize + content.dsize + 1);
+
+        strncpy(cont, key.dptr, key.dsize);
+        strcat(cont, "-");
+        strncat(cont, content.dptr, content.dsize);
+        strcat(cont, "\n");
+        
+        fwrite(cont, sizeof(char), strlen(cont), f);
+        
+        key = gdbm_nextkey(db, key);
+    }
+
+    fwrite("END OF CONTENT", sizeof(char), strlen("END OF CONTENT"), f);
+
+    fclose(f);
+    return 0;
 }
 
 //Directories
