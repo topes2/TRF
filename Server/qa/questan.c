@@ -71,7 +71,10 @@ void remove_answer(char id[], char userid[], GDBM_FILE db){//remover a resposta 
     strcat(aid,userid);
     key.dptr = aid;
     key.dsize = strlen(key.dptr) + 1;
+    if(gdbm_exists(db,key)){
     gdbm_delete(db,key);
+    }else
+    return;
 }
 
 void return_question(int socket, GDBM_FILE db, char question[]){
