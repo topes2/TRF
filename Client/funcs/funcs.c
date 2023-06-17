@@ -40,8 +40,7 @@ char* formating(char *buffer){ // switch to switch case if we have time
     } else if(!strncmp("ANSWER ", buffer, strlen("ANSWER "))){
         int Qnum;
         char *ans;
-        if(sscanf(buffer, "ANSWER %d %[^\n]", &Qnum, ans) != 2){
-            printf("Invalid command\n");
+        if(sscanf(buffer, "ANSWER %d %s", &Qnum, ans) != 2){
             return NULL; //comando invalido
         }
         
