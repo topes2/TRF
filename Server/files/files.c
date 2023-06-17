@@ -113,7 +113,8 @@ int getFile(int socket,char *buffer, GDBM_FILE db){// RECEIVES code : number of 
     content = gdbm_fetch(db, key);
 
     //Obtain file size
-    char *contentCopy = strdup(content.dptr);
+    char contentCopy[content.dsize + 1];
+    strncpy(contentCopy, content.dptr, content.dsize); 
     contentCopy[content.dsize] = '\0';
 
     //send to client
@@ -126,7 +127,7 @@ int getFile(int socket,char *buffer, GDBM_FILE db){// RECEIVES code : number of 
 
     char *filename = malloc(content.dsize - strlen(fileSize)); //we dont do +1 because there is a space is there
     strncpy(filename, content.dptr, content.dsize - strlen(fileSize) - 1);
-    filename[content.dsize - strlen(fileSize)] = '\0';
+    filename[content.dsize - strlen(fileSize) - 1] = '\0';
 
     //Read file contents and create a buffer
 
