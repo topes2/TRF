@@ -173,8 +173,9 @@ void listFiles(int socket, GDBM_FILE db){
     cont = gdbm_fetch(db,key);
 
     int place = 0, si = (ti * ss);
-    char* buffer = malloc(si);
-
+    char* buffer = malloc(si + 1);
+    memset(buffer, 0, si + 1);
+    
     while(key.dptr){
         cont = gdbm_fetch(db,key);
 

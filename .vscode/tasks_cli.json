@@ -10,11 +10,8 @@
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
-                "${fileDirname}/files/files.c",
                 "${fileDirname}/funcs/funcs.c",
                 "${fileDirname}/network/network.c",
-                "${fileDirname}/databases/db.c",
-                "${fileDirname}/qa/questan.c",
                 "-lgdbm"
             ],
             "options": {

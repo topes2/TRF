@@ -142,7 +142,7 @@ void QandA(int sockfd, char *buffer, char *res){
     sends(sockfd,res);
     writear(sockfd, res);
 
-    if(!strncmp(res, ASK_CODE, strlen(ASK_CODE)) || !strncmp(res, ANSWER_CODE, strlen(ANSWER_CODE)) || strncmp(res, REMOVE_ENTRY, strlen(REMOVE_ENTRY))){
+    if(!strncmp(res, ASK_CODE, strlen(ASK_CODE)) || !strncmp(res, ANSWER_CODE, strlen(ANSWER_CODE)) || !strncmp(res, REMOVE_ENTRY, strlen(REMOVE_ENTRY))){
         memset(buffer, 0, BUFFER_SIZE);
         rec = recs(sockfd);
         readar(sockfd, buffer, rec);
@@ -254,9 +254,6 @@ void files(int sockfd, char *buffer, char *res){
         readar(sockfd, name_size, size_received );
         name_size[size_received] = '\0'; // WTF ESTA A DAR MERDA
         
-       
-
-        printf("size rec: %d, name_size: %s, len: %d\n",size_received,  name_size, strlen(name_size));
         char *token = strtok(name_size," ");
 
         char filename[strlen(token)];
@@ -279,7 +276,6 @@ void files(int sockfd, char *buffer, char *res){
         strcpy(extension, token);
 
         sprintf(file, "Client/%s.%s", name, extension);
-        printf("file: %s, len: %d\n", file, strlen(file));
 
         int i = 1;
         while(access(file, F_OK) != -1){
@@ -330,11 +326,15 @@ void sends(int socket,char* buffer){
 
 int recs(int socket){ //recieves the size of a message incoming to see how many times to read
     char* buffer = malloc(22);
-    char c;
+    char c = 'a';
     int size;
     int reader = 0;
     while(c != '\n'){
         reader += read(socket, &c, 1);
+        if(reader == -1){
+            perror("read");
+        }
+
         *buffer = c;
         buffer+=1;        
     }

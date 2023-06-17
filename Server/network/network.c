@@ -98,7 +98,7 @@ int acceptNewConnection(int serverSocket, client *clients, struct sockaddr_in *c
 void sends(int socket,char* buffer){
     int size = strlen(buffer);
     char sizes[11];
-    sprintf(sizes, "%d\n\0", size);  
+    sprintf(sizes, "%d\n", size);  
     write(socket,sizes,strlen(sizes));
     }
 
@@ -106,11 +106,15 @@ void sends(int socket,char* buffer){
 
 int recs(int socket){ //recieves the size of a message incoming to see how many times to read
     char* buffer = malloc(22);
-    char c;
+    char c = 'a';
     int size;
     int reader = 0;
     while(c != '\n'){
         reader += read(socket, &c, 1);
+        if(reader == -1){
+            perror("read");
+        }
+
         *buffer = c;
         buffer+=1;        
     }

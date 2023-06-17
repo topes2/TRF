@@ -47,6 +47,7 @@ int main(){
         } else { 
             //its already logged in
             char *res = formating(buffer);
+            
             if (res != NULL){
                 if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE)) || !strncmp(REMOVE_ENTRY, res, strlen(REMOVE_ENTRY))){//these commands all share a function so they are grouped up
                     QandA(sockfd, buffer, res);
