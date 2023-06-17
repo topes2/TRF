@@ -113,6 +113,8 @@ int recs(int socket){ //recieves the size of a message incoming to see how many 
         reader += read(socket, &c, 1);
         if(reader == -1){
             perror("read");
+        } else if(reader == 0){
+            return 0;
         }
 
         *buffer = c;
