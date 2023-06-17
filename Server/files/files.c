@@ -128,13 +128,30 @@ int getFile(int socket,char *buffer, GDBM_FILE db){// RECEIVES code : number of 
     strncpy(filename, content.dptr, content.dsize - strlen(fileSize) - 1);
     filename[content.dsize - strlen(fileSize)] = '\0';
 
-    printf("filesize: %s, len: %d\nfilename: %s, len: %d\n",  fileSize, strlen(fileSize), filename, strlen(filename));
+    //Read file contents and create a buffer
 
+    char file[strlen("FilesUploaded/") + strlen(filename) + 1];
+    sprintf(file, "FilesUploaded/%s", filename);
     
+    FILE *f = fopen(file, "r");
+
+    if(f == NULL){
+        printf("file\n");
+    }
+
+    int bytes = atoi(fileSize);
+    char fileBuffer[bytes + 1];
+
+    fread(fileBuffer, 1, bytes, f);
+    fileBuffer[bytes] = '\0';
+    
+        
+    //send file content to client
+    sends(socket,fileBuffer);
+    writear(socket,fileBuffer);
+
+    fclose(f);
 }
-
-
-
 
 void listFiles(int socket, GDBM_FILE db){
     datum key,cont;
@@ -144,6 +161,13 @@ void listFiles(int socket, GDBM_FILE db){
     int ss = strlen(cont.dptr); // ss = starter size
 
     key = gdbm_firstkey(db);
+   
+    if(gdbm_errno == GDBM_ITEM_NOT_FOUND){
+        sends(socket, "1");
+        writear(socket, "1");
+        return;
+    }
+
     cont = gdbm_fetch(db,key);
 
     int place = 0, si = (ti * ss);

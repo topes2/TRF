@@ -1,13 +1,6 @@
 {
     "files.associations": {
-        "stdio.h": "c",
-        "inet.h": "c",
-        "string.h": "c",
-        "defines.h": "c",
-        "random": "c",
-        "chrono": "c",
-        "network.h": "c",
-        "limits": "c",
-        "semaphore": "c"
+        "cstdio": "c",
+        "fstream": "c"
     }
 }

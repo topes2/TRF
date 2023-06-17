@@ -104,20 +104,17 @@ void sends(int socket,char* buffer){
 
 
 
-int recs(int socket){
-    char* buffer = malloc(BUFFER_SIZE);
-    char* pt = buffer;
+int recs(int socket){ //recieves the size of a message incoming to see how many times to read
+    char* buffer = malloc(22);
     char c;
     int size;
-    int r;
+    int reader = 0;
     while(c != '\n'){
-        r = read(socket,&c,1);
-        if(r <= 0){
-            return 0;
-        }
-        *pt = c;
-        pt++;  
+        reader += read(socket, &c, 1);
+        *buffer = c;
+        buffer+=1;        
     }
+    buffer -= reader;
     size = atoi(buffer);
     return size;
 }
@@ -126,12 +123,13 @@ int recs(int socket){
 
 
 int readar(int socket, char* buffer,int size){
-    memset(buffer, 0, BUFFER_SIZE);
+    memset(buffer, 0, strlen(buffer));
     char* pt = buffer;
-    while(strlen(buffer) <= size - 1){
+    while(strlen(buffer) < size ){
         read(socket,pt,MAX_MESSAGE_LENGTH);
         pt += MAX_MESSAGE_LENGTH;
     }
+
     return strlen(buffer);    
 }
 
@@ -143,7 +141,9 @@ void writear(int socket,char* buffer){//versao 1.0
     }else{
         char* pt = buffer;
         char tb[MAX_MESSAGE_LENGTH];
-        float parts = size/MAX_MESSAGE_LENGTH;
+        float parts = (float) size/MAX_MESSAGE_LENGTH;
+
+        printf("parts = %f, size: %d\n",parts, size);
         while(parts>0){
             if(strlen(pt) >= MAX_MESSAGE_LENGTH){
             memcpy(tb,pt,MAX_MESSAGE_LENGTH);

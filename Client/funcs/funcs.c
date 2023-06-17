@@ -196,10 +196,12 @@ void files(int sockfd, char *buffer, char *res){
         char *fileBuffer = malloc(size + 1);
         rewind(f); 
 
+        /*
         if(bytes > 5000){
             printf("File is to big!\n");
             return;
         }
+        */
 
         size_t result = fread(buffer, 1, size, f); //limite de 5k bytes 
 
@@ -236,8 +238,9 @@ void files(int sockfd, char *buffer, char *res){
 
         int bytes = recs(sockfd);
         readar(sockfd, buffer, bytes);
-        printf("%s", buffer);
-
+        if(strcmp(buffer, "1")){
+            printf("%s", buffer);
+        } 
         printf("ENDFILES\n");
         return;
         
@@ -248,34 +251,60 @@ void files(int sockfd, char *buffer, char *res){
         //Before the getfiles function starts on the server
 
         int size_received = recs(sockfd); //size of the string received not the file
-        char* name_size = malloc(size_received + 1);
+        char name_size[size_received];
 
-        readar(sockfd, name_size,size_received);
-        name_size[size_received] = '\0';
+        readar(sockfd, name_size, size_received );
+        name_size[size_received] = '\0'; // WTF ESTA A DAR MERDA
+        
+       
 
         printf("size rec: %d, name_size: %s, len: %d\n",size_received,  name_size, strlen(name_size));
+        char *token = strtok(name_size," ");
 
-        char *pt = strchr(name_size, ' ') + 1;
+        char filename[strlen(token)];
+        strcpy(filename, token);
 
-        printf("pt: %s, len: %d\n", pt, strlen(pt));
-
-        int m1 = strlen(name_size);
-        printf("m1: %d\n");
-        int m2 = strlen(pt);
-        printf("m2: %d\n");
-
-        int m = strlen(name_size) - strlen(pt);
-        printf("m: %d\n");
-        char *filename = malloc(m);
-        int bytes;
-
-        //sscanf(name_size, "%s %d", filename, bytes);
-
-        printf("name_size: %s, len: %d\n", filename, bytes);
-
-
-
+        token = strtok(NULL," ");
         
+        char filesize[strlen(token) ];
+        strcpy(filesize,token);
+
+        //create file and buffer
+        char filebuffer[atoi(filesize)];
+        char file[strlen(filename) + 13 + strlen("/Client/")]; //og value is 13
+        
+        token = strtok(filename, ".");
+        char name[strlen(token) ];
+        strcpy(name, token);
+        token = strtok(NULL, ".");
+        char extension[strlen(token)];
+        strcpy(extension, token);
+
+        sprintf(file, "%s.%s", name, extension);
+        printf("file: %s, len: %d\n", file, strlen(file));
+
+        int i = 1;
+        while(access(file, F_OK) != -1){
+            
+            sprintf(file, "%s-%d.%s", name, i, extension);
+            i++;
+        }
+
+        FILE* f = fopen(file, "w");
+
+        //gets file content
+        if(recs(sockfd) != atoi(filesize)){
+            printf("Error different sizes!\n");
+            return;
+        }
+        
+        readar(sockfd, filebuffer, atoi(filesize));
+        
+        printf("file buffer: %s, len: %ld\n", filebuffer, strlen(filebuffer));
+        
+        fwrite(filebuffer, 1, atoi(filesize), f);
+
+        fclose(f);
         return;
     }
 }
@@ -308,11 +337,10 @@ int recs(int socket){ //recieves the size of a message incoming to see how many 
     int reader = 0;
     while(c != '\n'){
         reader += read(socket, &c, 1);
-        
         *buffer = c;
         buffer+=1;        
     }
-    printf("read: %d\n", reader);
+    buffer -= reader;
     size = atoi(buffer);
     return size;
 }

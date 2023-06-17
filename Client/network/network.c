@@ -47,9 +47,9 @@ void Connect(int sockfd, struct sockaddr_in serv_addr){
 }
 
 int readar(int socket, char* buffer,int size){
-    memset(buffer, 0, BUFFER_SIZE);
+    memset(buffer, 0, strlen(buffer));
     char* pt = buffer;
-    while(strlen(buffer) <= size ){
+    while(strlen(buffer) < size ){
         read(socket,pt,MAX_MESSAGE_LENGTH);
         pt += MAX_MESSAGE_LENGTH;
     }
