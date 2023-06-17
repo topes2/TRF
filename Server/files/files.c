@@ -31,7 +31,7 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
             content.dptr = newString;
             content.dsize = strlen(content.dptr);
 
-            printf("File %s replaced\n", key.dptr);
+            printf("File %.*s replaced\n", key.dsize, key.dptr);
 
             //replace
             if(gdbm_store(db, key, content, GDBM_REPLACE) != 0){
@@ -146,7 +146,6 @@ int getFile(int socket,char *buffer, GDBM_FILE db){// RECEIVES code : number of 
 
     fread(fileBuffer, 1, bytes, f);
     fileBuffer[bytes] = '\0';
-    
         
     //send file content to client
     sends(socket,fileBuffer);
@@ -160,7 +159,6 @@ void listFiles(int socket, GDBM_FILE db){
     gdbm_count_t t;
     gdbm_count(db, &t);
     int ti = (int) t;
-    int ss = strlen(cont.dptr); // ss = starter size
 
     key = gdbm_firstkey(db);
    
@@ -172,6 +170,7 @@ void listFiles(int socket, GDBM_FILE db){
 
     cont = gdbm_fetch(db,key);
 
+    int ss = strlen(cont.dptr); // ss = starter size
     int place = 0, si = (ti * ss);
     char* buffer = malloc(si + 1);
     memset(buffer, 0, si + 1);
@@ -179,10 +178,10 @@ void listFiles(int socket, GDBM_FILE db){
     while(key.dptr){
         cont = gdbm_fetch(db,key);
 
-        if((strlen(cont.dptr) > ss)){ //making the buffer bigger if the question is bigger than the min value
-            si = ti*strlen(cont.dptr);
+        if(cont.dsize > ss){ //making the buffer bigger if the question is bigger than the min value
+            si = ti * cont.dsize;
             char* buffer2 = malloc(si + 4);
-            memset(buffer2, 0, sizeof(buffer2));
+            memset(buffer2, 0, si + 4);
             strncpy(buffer2, buffer, strlen(buffer));
             buffer = buffer2;
         }

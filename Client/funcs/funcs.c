@@ -110,6 +110,10 @@ char* formating(char *buffer){ // switch to switch case if we have time
         return CLOSE_CODE;
     }
 
+    if(!strcmp("EXIT", buffer)){
+        return EXIT_CODE;
+    }
+
     return NULL;
 }
 
@@ -184,13 +188,12 @@ void files(int sockfd, char *buffer, char *res){
         }
         rewind(f); 
 
-        /*
+        
         if(bytes > 5000){
-            printf("File is to big!\n");
+            printf("File is to big! max is 5000 bytes\n");
             return;
         }
-        */
-
+        
         char *fileBuffer = malloc(size + 1);
         size_t result = fread(fileBuffer, 1, size, f); //limite de 5k bytes 
         fileBuffer[size] = '\0';
@@ -256,7 +259,7 @@ void files(int sockfd, char *buffer, char *res){
         strcpy(filesize,token);
 
         //create file and buffer
-        char filebuffer[atoi(filesize)];
+        char filebuffer[atoi(filesize) + 1];
         char file[strlen(filename) + 13]; 
         
         token = strtok(filename, ".");
@@ -278,6 +281,7 @@ void files(int sockfd, char *buffer, char *res){
         //gets file content
         int sizerec = recs(sockfd);
         readar(sockfd, filebuffer, atoi(filesize));
+        filebuffer[atoi(filesize)] = '\0';
 
         if(sizerec != atoi(filesize)){
             printf("Error different sizes!\n");

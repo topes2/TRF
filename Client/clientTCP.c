@@ -49,6 +49,11 @@ int main(){
             char *res = formating(buffer);
 
             if (res != NULL){
+                if(!strncmp(res, EXIT_CODE, strlen(EXIT_CODE))){
+                    printf("Leaving session...\n");
+                    break;
+                }
+
                 if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE)) || !strncmp(REMOVE_ENTRY, res, strlen(REMOVE_ENTRY))){//these commands all share a function so they are grouped up
                     QandA(sockfd, buffer, res);
 

@@ -166,6 +166,8 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
         tk = gdbm_nextkey(qdb,kq);
         kq = tk;        
     }
+
+    buffer_1[place - 1] = '\0';
     sends(socket,buffer_1);
     writear(socket, buffer_1);
 }
