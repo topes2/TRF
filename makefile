@@ -1,8 +1,8 @@
-all: clean ser cli
+all: clean Server/ser Client/cli
 
-ser: bin/serverTCP.o bin/ser/network.o bin/ser/db.o bin/ser/funcs.o bin/ser/qa.o bin/ser/files.o
+Server/ser: bin/serverTCP.o bin/ser/network.o bin/ser/db.o bin/ser/funcs.o bin/ser/qa.o bin/ser/files.o
 	gcc -o $@ $^ -lgdbm
-cli: bin/clientTCP.o bin/cli/network.o bin/cli/funcs.o
+Client/cli: bin/clientTCP.o bin/cli/network.o bin/cli/funcs.o
 	gcc -o $@ $^
 
 

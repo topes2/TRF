@@ -164,17 +164,10 @@ void files(int sockfd, char *buffer, char *res){
         char *pt = strchr(res + strlen(PUTFILES_CODE) + 1, ':'); //Bytes
         int bytes = atoi(pt + 1);
         
-        char *filename = malloc(strlen(res + strlen(PUTFILES_CODE)) - strlen(pt + 1) + strlen("Client/") + 1);
+        char *filename = malloc(strlen(res + strlen(PUTFILES_CODE)) - strlen(pt + 1) + 1);
         *pt = '\0';
-        strcpy(filename, "Client/");
-        strcat(filename, res + strlen(PUTFILES_CODE) + 1);
+        strcpy(filename, res + strlen(PUTFILES_CODE) + 1);
         *pt = ':';
-
-        //see if the file exists
-        if(access(filename, F_OK) != -1){
-           perror("File open file");
-            return;
-        }
 
         FILE* f = fopen(filename, "r");
 
@@ -190,8 +183,6 @@ void files(int sockfd, char *buffer, char *res){
             printf("bytes dont match\n");
             return;
         }
-
-        char *fileBuffer = malloc(size + 1);
         rewind(f); 
 
         /*
@@ -201,16 +192,17 @@ void files(int sockfd, char *buffer, char *res){
         }
         */
 
-        size_t result = fread(buffer, 1, size, f); //limite de 5k bytes 
+        char *fileBuffer = malloc(size + 1);
+        size_t result = fread(fileBuffer, 1, size, f); //limite de 5k bytes 
+        fileBuffer[size] = '\0';
 
         if(result != size) {
             printf("Reading error\n");
 
-            free(buffer);
+            free(fileBuffer);
             fclose(f);
             return;
         }
-        buffer[size] = '\0';
 
         //Anouncement
         sends(sockfd, res);
@@ -218,9 +210,9 @@ void files(int sockfd, char *buffer, char *res){
 
         fclose(f);
 
-        //send buffer to server
-        sends(sockfd, buffer);
-        writear(sockfd, buffer);
+        //send file content to server
+        sends(sockfd, fileBuffer);
+        writear(sockfd, fileBuffer);
 
         //get response
         int resp = recs(sockfd);
@@ -280,7 +272,7 @@ void files(int sockfd, char *buffer, char *res){
         int i = 1;
         while(access(file, F_OK) != -1){
             
-            sprintf(file, "Client/%s-%d.%s", name, i, extension);
+            sprintf(file, "%s-%d.%s", name, i, extension);
             i++;
         }
 
