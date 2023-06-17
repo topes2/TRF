@@ -243,7 +243,7 @@ void files(int sockfd, char *buffer, char *res){
         char name_size[size_received];
 
         readar(sockfd, name_size, size_received );
-        name_size[size_received] = '\0'; // WTF ESTA A DAR MERDA
+        name_size[size_received] = '\0'; 
         
         char *token = strtok(name_size," ");
 
@@ -257,7 +257,7 @@ void files(int sockfd, char *buffer, char *res){
 
         //create file and buffer
         char filebuffer[atoi(filesize)];
-        char file[strlen(filename) + 13 + strlen("Client/")]; //og value is 13
+        char file[strlen(filename) + 13]; 
         
         token = strtok(filename, ".");
         char name[strlen(token) ];
@@ -266,7 +266,7 @@ void files(int sockfd, char *buffer, char *res){
         char extension[strlen(token)];
         strcpy(extension, token);
 
-        sprintf(file, "Client/%s.%s", name, extension);
+        sprintf(file, "%s.%s", name, extension);
 
         int i = 1;
         while(access(file, F_OK) != -1){
@@ -275,21 +275,28 @@ void files(int sockfd, char *buffer, char *res){
             i++;
         }
 
-        FILE* f = fopen(file, "w");
-
         //gets file content
-        if(recs(sockfd) != atoi(filesize)){
+        int sizerec = recs(sockfd);
+        readar(sockfd, filebuffer, atoi(filesize));
+
+        if(sizerec != atoi(filesize)){
             printf("Error different sizes!\n");
             return;
         }
-        
-        readar(sockfd, filebuffer, atoi(filesize));
-        
-        printf("file buffer: %s, len: %ld\n", filebuffer, strlen(filebuffer));
+
+        FILE* f = fopen(file, "w");
+
+        if(f == NULL){
+            perror("Couldn't open file");
+            return;
+        }
         
         fwrite(filebuffer, 1, atoi(filesize), f);
 
         fclose(f);
+
+        //Print that we downloaded the file
+        printf("FILE %s %s\n%s\n", (res + strlen(GETFILES_CODE) + 1), file, filebuffer);
         return;
     }
 }
