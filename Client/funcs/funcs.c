@@ -271,7 +271,7 @@ void files(int sockfd, char *buffer, char *res){
 
         //create file and buffer
         char filebuffer[atoi(filesize)];
-        char file[strlen(filename) + 13 + strlen("/Client/")]; //og value is 13
+        char file[strlen(filename) + 13 + strlen("Client/")]; //og value is 13
         
         token = strtok(filename, ".");
         char name[strlen(token) ];
@@ -280,13 +280,13 @@ void files(int sockfd, char *buffer, char *res){
         char extension[strlen(token)];
         strcpy(extension, token);
 
-        sprintf(file, "%s.%s", name, extension);
+        sprintf(file, "Client/%s.%s", name, extension);
         printf("file: %s, len: %d\n", file, strlen(file));
 
         int i = 1;
         while(access(file, F_OK) != -1){
             
-            sprintf(file, "%s-%d.%s", name, i, extension);
+            sprintf(file, "Client/%s-%d.%s", name, i, extension);
             i++;
         }
 
