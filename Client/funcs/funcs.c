@@ -164,24 +164,22 @@ void files(int sockfd, char *buffer, char *res){
         char *pt = strchr(res + strlen(PUTFILES_CODE) + 1, ':'); //Bytes
         int bytes = atoi(pt + 1);
         
-        char *filename = malloc(strlen(res + strlen(PUTFILES_CODE)) - strlen(pt + 1) + 1);
+        char *filename = malloc(strlen(res + strlen(PUTFILES_CODE)) - strlen(pt + 1) + strlen("Client/") + 1);
         *pt = '\0';
-        strcpy(filename, res + strlen(PUTFILES_CODE) + 1);
+        strcpy(filename, "Client/");
+        strcat(filename, res + strlen(PUTFILES_CODE) + 1);
         *pt = ':';
 
         //see if the file exists
         if(access(filename, F_OK) != -1){
-            printf("File doesnt exist\n");
+           perror("File open file");
             return;
         }
-        
-        char *fileOpen = malloc(strlen(filename) + strlen("Client/") + 1);
-        sprintf(fileOpen, "Client/%s", filename);
 
-        FILE* f = fopen(fileOpen, "r");
+        FILE* f = fopen(filename, "r");
 
         if(f == NULL){
-            printf("Couldn't open file\n");
+            perror("Couldn't open file");
             return;
         }
 

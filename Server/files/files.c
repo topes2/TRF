@@ -76,7 +76,7 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
     //read client stuff
     int bytesRead = recs(socket);
     readar(socket, fileBuffer, bytesRead);
-    //W clears the file and opens in write mode
+    //wb clears the file and opens in write mode
     FILE *f = fopen(dir, "w");
 
     if(f == NULL){
@@ -86,7 +86,8 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
     }
 
     //write stuff
-    fprintf(f, "%s", fileBuffer);
+    fwrite(fileBuffer, 1, bytesRead, f);
+    //fprintf(f, "%s", fileBuffer);
 
     fclose(f);
 
@@ -185,14 +186,12 @@ void listFiles(int socket, GDBM_FILE db){
             buffer = buffer2;
         }
 
-        char *num = malloc(11);//digits
-        strncpy(num, key.dptr, key.dsize);
-        char *newString = malloc(strlen(num) + 4);
-        sprintf(newString, "(%s) ", num);
-
-        strcat(buffer, newString);
-        strcat(buffer, cont.dptr);
+        strcat(buffer, "(");
+        strncat(buffer, key.dptr, key.dsize);
+        strcat(buffer, ") ");
+        strncat(buffer, cont.dptr, cont.dsize);
         strcat(buffer, "\n");
+        
 
         place += strlen(cont.dptr) + 1;
         key = gdbm_nextkey(db,key);
