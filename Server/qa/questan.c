@@ -119,13 +119,14 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
     int ct = cq+ca; //count total
     kq = gdbm_firstkey(qdb);
     int min_size = (5 * strlen("   NOT ANSWERED"));
-    char* buffer_1 = malloc((ct)*min_size);
+    char* buffer_1 = malloc((ct)*min_size + 1);
+    memset(buffer_1, 0, (ct)*min_size + 1);
     while(kq.dptr){
         kqc = gdbm_fetch(qdb, kq);
         if(!kqc.dptr){
             break;
         } 
-        char *question = malloc(strlen(kq.dptr) + strlen(kqc.dptr) + 5);
+        char *question = malloc(kq.dsize + kqc.dsize + 5);
         sprintf(question, "(%s) %s \n", kq.dptr, kqc.dptr);
         if((strlen(question) > min_size)){ //making the buffer bigger if the question is bigger than the min value
             min_size = ct*strlen(question);
@@ -135,9 +136,7 @@ void list_questions(int socket,GDBM_FILE qdb, GDBM_FILE adb){
         }
         strncpy(buffer_1 + place,question,strlen(question));
         place += strlen(question);
-        if(!kqc.dptr){
-            break;
-        }
+
         ka = gdbm_firstkey(adb);
         while(ka.dptr){
             char *key_copy = strdup(ka.dptr);

@@ -66,7 +66,21 @@ void attendance(time_t start, GDBM_FILE db, char *username){
 }
 
 int createAttendance(GDBM_FILE db){
-    FILE *f = fopen("Attendance.txt", "w");
+    mkdir("Attendance", 0777);
+    char *name = "Attendance/Attendance";
+    char *extension = "txt";
+    char *file = malloc(strlen("Attendance/Attendance.txt") + 13);
+
+    sprintf(file, "%s.%s", name, extension);
+
+    int i = 1;
+    while(access(file, F_OK) != -1){ 
+        sprintf(file, "%s-%d.%s", name, i, extension);
+        i++;
+
+    }
+
+    FILE *f = fopen(file, "w");
 
     if(f == NULL){
         return 1;
