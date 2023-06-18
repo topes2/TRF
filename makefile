@@ -1,31 +1,31 @@
-all: clean Server/ser Client/cli
+all: clean ser/ser cli/cli
 
-Server/ser: bin/serverTCP.o bin/ser/network.o bin/ser/db.o bin/ser/funcs.o bin/ser/qa.o bin/ser/files.o
+ser/ser: bin/serTCP.o bin/ser/network.o bin/ser/db.o bin/ser/funcs.o bin/ser/qa.o bin/ser/files.o
 	gcc -o $@ $^ -lgdbm
-Client/cli: bin/clientTCP.o bin/cli/network.o bin/cli/funcs.o
+cli/cli: bin/cliTCP.o bin/cli/network.o bin/cli/funcs.o
 	gcc -o $@ $^
 
 
-bin/serverTCP.o: Server/serverTCP.c | bin configs.h Server/network/network.h Server/funcs/funcs.h
+bin/serTCP.o: ser/serTCP.c | bin configs.h ser/network/network.h ser/funcs/funcs.h
 	gcc -c -o $@ $^
-bin/clientTCP.o: Client/clientTCP.c | bin configs.h Client/network/network.h Client/funcs/funcs.h
+bin/cliTCP.o: cli/cliTCP.c | bin configs.h cli/network/network.h cli/funcs/funcs.h
 	gcc -c -o $@ $^
 
 	
-bin/cli/funcs.o: Client/funcs/funcs.c | bin/cli configs.h Client/funcs/funcs.h Client/network/network.h
+bin/cli/funcs.o: cli/funcs/funcs.c | bin/cli configs.h cli/funcs/funcs.h cli/network/network.h
 	gcc -c -o $@ $^
-bin/cli/network.o: Client/network/network.c | bin/cli configs.h Client/network/network.h
+bin/cli/network.o: cli/network/network.c | bin/cli configs.h cli/network/network.h
 	gcc -c -o $@ $^
 	
-bin/ser/db.o: Server/databases/db.c | bin/ser Server/databases/db.h
+bin/ser/db.o: ser/databases/db.c | bin/ser ser/databases/db.h
 	gcc -c -o $@ $^
-bin/ser/network.o: Server/network/network.c | bin/ser configs.h Server/network/network.h
+bin/ser/network.o: ser/network/network.c | bin/ser configs.h ser/network/network.h
 	gcc -c -o $@ $^
-bin/ser/funcs.o: Server/funcs/funcs.c | bin/ser configs.h Server/funcs/funcs.h Server/databases/db.h
+bin/ser/funcs.o: ser/funcs/funcs.c | bin/ser configs.h ser/funcs/funcs.h ser/databases/db.h
 	gcc -c -o $@ $^ 
-bin/ser/qa.o: Server/qa/questan.c | bin/ser Server/qa/questan.h Server/databases/db.h Server/network/network.h
+bin/ser/qa.o: ser/qa/questan.c | bin/ser ser/qa/questan.h ser/databases/db.h ser/network/network.h
 	gcc -c -o $@ $^
-bin/ser/files.o: Server/files/files.c | bin/ser Server/files/files.h configs.h Server/databases/db.h Server/network/network.h
+bin/ser/files.o: ser/files/files.c | bin/ser ser/files/files.h configs.h ser/databases/db.h ser/network/network.h
 	gcc -c -o $@ $^ 
 
 
@@ -38,4 +38,4 @@ bin:
 
 
 clean:
-	rm -rf bin cli ser
+	rm -rf bin cli/cli ser/ser
