@@ -156,7 +156,7 @@ void QandA(int sockfd, char *buffer, char *res){
     printf("%s", buffer);  
       
     if(!strcmp(res, LISTQUESTIONS_CODE)){
-        printf("%s\nENDQUESTIONS\n", buffer);
+        printf("\nENDQUESTIONS\n");
     } 
 
     
