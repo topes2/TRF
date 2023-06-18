@@ -73,7 +73,7 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
 
     char *fileBuffer = malloc(bytes + 1);
 
-    //read client stuff
+    //read client 
     int bytesRead = recs(socket);
     readar(socket, fileBuffer, bytesRead);
     //wb clears the file and opens in write mode
@@ -85,9 +85,8 @@ int putfile(int socket, char *buffer, GDBM_FILE db) {
         return -1;
     }
 
-    //write stuff
+    //write 
     fwrite(fileBuffer, 1, bytesRead, f);
-    //fprintf(f, "%s", fileBuffer);
 
     fclose(f);
 
@@ -138,7 +137,7 @@ int getFile(int socket,char *buffer, GDBM_FILE db){// RECEIVES code : number of 
     FILE *f = fopen(file, "r");
 
     if(f == NULL){
-        printf("file\n");
+        printf("Error opening file\n");
     }
 
     int bytes = atoi(fileSize);

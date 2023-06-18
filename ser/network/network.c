@@ -148,8 +148,6 @@ void writear(int socket,char* buffer){//versao 1.0
         char* pt = buffer;
         char tb[MAX_MESSAGE_LENGTH];
         float parts = (float) size/MAX_MESSAGE_LENGTH;
-
-        printf("parts = %f, size: %d\n",parts, size);
         while(parts>0){
             if(strlen(pt) >= MAX_MESSAGE_LENGTH){
             memcpy(tb,pt,MAX_MESSAGE_LENGTH);
