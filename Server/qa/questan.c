@@ -64,17 +64,28 @@ void add_answer(char *answer, char *userid, GDBM_FILE db, int socket){ // adding
     writear(socket, res); 
 }
 
-void remove_answer(char id[], char userid[], GDBM_FILE db){//remover a resposta da base de dados
+int remove_answer(char *buffer, GDBM_FILE db){//remover a resposta da base de dados
+    strtok(buffer, ":");
+    char *question = strtok(NULL, ":");
+    char *username = strtok(NULL, ":");
+    
+    char *string = malloc(strlen(username) + strlen(question) + 2);
+    sprintf(string, "%s:%s", question, username);
+
     datum key;
-    char aid[strlen(id) + strlen(userid) + 2];
-    strcat(aid,id);
-    strcat(aid,userid);
-    key.dptr = aid;
+
+    key.dptr = string;
     key.dsize = strlen(key.dptr) + 1;
-    if(gdbm_exists(db,key)){
-    gdbm_delete(db,key);
-    }else
-    return;
+
+
+
+    if(!gdbm_delete(db, key)){
+        //Success
+        return 0;
+    }
+
+    printf("Error deleting key: %s\n", gdbm_strerror(gdbm_errno));
+    return 1;
 }
 
 void return_question(int socket, GDBM_FILE db, char question[]){

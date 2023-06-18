@@ -34,4 +34,5 @@
 //Attendance
 #define LATE_TIME 1200
 #define ABSENT_TIME 2700
+#define CREATE_ATTENDANCE_FILE_CODE "=)(/#%/!)"
 #endif 

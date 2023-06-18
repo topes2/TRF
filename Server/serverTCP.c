@@ -98,6 +98,7 @@ int main(){
     //start clock
     time_t start = time(NULL);
 
+    int ret;
     //Main cycle
     while(!flag){
         //Select
@@ -166,9 +167,18 @@ int main(){
                         list_questions(clients[i].socket, dbQ, dbA);
                         printf("LISTQUESTIONS - user: %s\n", clients[i].userName);
                         
-                    }else if(!strncmp(REMOVE_ENTRY,buffer, strlen(REMOVE_ENTRY))){ //falta ---------------------
-                        printf("buffer: %s\n", buffer);
+                    }else if(!strncmp(REMOVE_ENTRY,buffer, strlen(REMOVE_ENTRY))){ 
+                        ret = remove_answer(buffer, dbA);
+                        if(!ret){
+                            sends(clients[i].socket, "Removed successfully\n");
+                            writear(clients[i].socket, "Removed successfully\n");
 
+                            printf("REMOVE - user: %s\n", clients[i].userName);
+                        } else {
+                            sends(clients[i].socket, "Couldn't find entry\n");
+                            writear(clients[i].socket, "Couldn't find entry\n");
+                        }
+                        
                     } else if(!strncmp(PUTFILES_CODE, buffer, strlen(PUTFILES_CODE))){
                         putfile(clients[i].socket, buffer, dbFiles);
                         printf("PUTFILE - user: %s\n", clients[i].userName);
@@ -182,12 +192,16 @@ int main(){
                         printf("GETFILES - user: %s\n", clients[i].userName);
 
                     }else if(!strcmp(CREATE_ATTENDANCE_FILE_CODE, buffer)){
-                        if(!createAttendance(dbAttendance)){
+                        ret = createAttendance(dbAttendance); 
+                        if(!ret){
                             //success
+                            sends(clients[i].socket, "0");
+                            writear(clients[i].socket, "0");
                             printf("CREATE ATTENDANCE - user: %s\n", clients[i].userName);
                         } else {
                             //failure
-                            printf("failed\n");
+                            sends(clients[i].socket, "1");
+                            writear(clients[i].socket, "1");
                         }
 
 

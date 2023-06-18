@@ -114,6 +114,10 @@ char* formating(char *buffer){ // switch to switch case if we have time
         return EXIT_CODE;
     }
 
+    if(!strcmp("CREATE ATTENDANCE", buffer)){
+        return CREATE_ATTENDANCE_FILE_CODE;
+    }
+
     return NULL;
 }
 
@@ -145,19 +149,17 @@ void QandA(int sockfd, char *buffer, char *res){
     sends(sockfd,res);
     writear(sockfd, res);
 
-    if(!strncmp(res, ASK_CODE, strlen(ASK_CODE)) || !strncmp(res, ANSWER_CODE, strlen(ANSWER_CODE)) || !strncmp(res, REMOVE_ENTRY, strlen(REMOVE_ENTRY))){
-        memset(buffer, 0, BUFFER_SIZE);
-        rec = recs(sockfd);
-        readar(sockfd, buffer, rec);
-        printf("%s", buffer);
-        
-    } else if(!strcmp(res, LISTQUESTIONS_CODE)){
-        rec = recs(sockfd);
-        readar(sockfd, buffer, rec);
+    rec = recs(sockfd);
+    readar(sockfd, buffer, rec);
 
+    //prints
+    printf("%s", buffer);  
+      
+    if(!strcmp(res, LISTQUESTIONS_CODE)){
         printf("%s\nENDQUESTIONS\n", buffer);
-       
     } 
+
+    
 }
 
 void files(int sockfd, char *buffer, char *res){
@@ -335,6 +337,10 @@ int recs(int socket){ //recieves the size of a message incoming to see how many 
         reader += read(socket, &c, 1);
         if(reader == -1){
             perror("read");
+        } else if(reader == 0){
+            printf("Server disconnected\n");
+            close(socket);
+            return 0;
         }
 
         *buffer = c;

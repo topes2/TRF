@@ -31,6 +31,7 @@ int main(){
     read(sockfd,buffer,strlen(WELCOME_MSG));
     printf("%s", buffer);
     //loop
+    int bytes;
     while(1){
         //Interaction with the server
         getInput(buffer); //get the user input and return the size of it, save it on a buffer
@@ -52,9 +53,7 @@ int main(){
                 if(!strncmp(res, EXIT_CODE, strlen(EXIT_CODE))){
                     printf("Leaving session...\n");
                     break;
-                }
-
-                if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE)) || !strncmp(REMOVE_ENTRY, res, strlen(REMOVE_ENTRY))){//these commands all share a function so they are grouped up
+                } else if(!strncmp(ASK_CODE, res, strlen(ASK_CODE)) || !strncmp(ANSWER_CODE, res, strlen(ANSWER_CODE)) || !strncmp(LISTQUESTIONS_CODE, res, strlen(LISTQUESTIONS_CODE)) || !strncmp(REMOVE_ENTRY, res, strlen(REMOVE_ENTRY))){//these commands all share a function so they are grouped up
                     QandA(sockfd, buffer, res);
 
                 }else if(!strncmp(PUTFILES_CODE, res, strlen(PUTFILES_CODE)) || !strcmp(LISTFILES_CODE, res) || !strncmp(GETFILES_CODE, res, strlen(GETFILES_CODE))){// these commands all share functions so they are grouped up
@@ -68,6 +67,22 @@ int main(){
                     //Close
                     close(sockfd);
                     return 0;
+                } else if(!strcmp(CREATE_ATTENDANCE_FILE_CODE, res)){
+                    //Send command to server
+                    sends(sockfd, res);
+                    writear(sockfd, res);
+
+                    //Get response
+                    bytes = recs(sockfd);
+                    readar(sockfd, buffer, bytes);
+
+                    if(!strcmp(buffer, "0")){
+                        //create done
+                        printf("Attendance.txt created in server\n");
+                    } else {
+                        //failed
+                        printf("Couldn't create Attendance.txt in server\n");
+                    }
                 }
 
             } else {
